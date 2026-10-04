@@ -47,6 +47,7 @@ NEW AFFORDANCE
 - REFUSE does not require payload fetch.
 - **Retrieval path does not define world-seed identity.**
 - Provider availability is not authority.
+- **Discovery may reveal candidate roads; it does not define the seed or authorize the road.**
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -67,8 +68,12 @@ NEW AFFORDANCE
 
 > A signed crossing may carry only a content address; an admitting locality independently resolves and verifies the addressed bytes before creating local playability, while a refusing locality does not fetch them.
 
-## Active proof
-
 ### TENET 004 — Replaceable Roads
 
 > The same addressed world-seed may be retrieved from materially different independent providers and produce the same verified local consequence; one provider may disappear without killing the seed.
+
+## Active proof
+
+### TENET 005 — Discovery is not the provider
+
+> An untrusted discovery layer may suggest stale, duplicate, malformed, or lying provider candidates; only independently verified bytes matching the signed world-seed address may continue toward local playability.
