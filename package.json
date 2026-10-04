@@ -1,0 +1,11 @@
+{
+  "name": "@static-collective/gro",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "An embodied, provenance-preserving possibility game.",
+  "scripts": {
+    "demo": "node examples/genesis-001.js",
+    "test": "node --test"
+  }
+}
