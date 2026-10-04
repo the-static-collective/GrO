@@ -48,6 +48,7 @@ NEW AFFORDANCE
 - **Retrieval path does not define world-seed identity.**
 - Provider availability is not authority.
 - **Discovery may reveal candidate roads; it does not define the seed or authorize the road.**
+- **Discovery consensus is not required for seed identity.**
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -72,8 +73,12 @@ NEW AFFORDANCE
 
 > The same addressed world-seed may be retrieved from materially different independent providers and produce the same verified local consequence; one provider may disappear without killing the seed.
 
-## Active proof
-
 ### TENET 005 — Discovery is not the provider
 
 > An untrusted discovery layer may suggest stale, duplicate, malformed, or lying provider candidates; only independently verified bytes matching the signed world-seed address may continue toward local playability.
+
+## Active proof
+
+### TENET 006 — Many Maps, One Seed
+
+> Independent discovery systems with disjoint provider sets may disagree about the roads and still converge on the same world-seed and local consequence without directory consensus.
