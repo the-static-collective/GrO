@@ -41,6 +41,8 @@ NEW AFFORDANCE
 - A door becoming available does not compel anyone to cross it.
 - **A tenet is an invitation with provenance, not a command with jurisdiction.**
 - Ignoring an affordance is a valid disposition and need not produce a trace.
+- **The same crossing may lawfully produce different local consequences.**
+- Transport does not carry source jurisdiction into the destination.
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -52,3 +54,9 @@ NEW AFFORDANCE
 ### TENET 001 — Leave possibility
 
 > One actor can deliberately leave a bounded future possibility at a place; another actor may later notice, hold, ignore, or act through it without inheriting the author's authority.
+
+## Active proof
+
+### TENET 002 — Cross locality
+
+> One signed tenet crossing may be admitted by one sovereign locality and refused by another; only local admission creates local playability.
