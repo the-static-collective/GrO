@@ -43,6 +43,8 @@ NEW AFFORDANCE
 - Ignoring an affordance is a valid disposition and need not produce a trace.
 - **The same crossing may lawfully produce different local consequences.**
 - Transport does not carry source jurisdiction into the destination.
+- **A signed address is not the payload; admitted payload bytes are still independently verified.**
+- REFUSE does not require payload fetch.
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -55,8 +57,12 @@ NEW AFFORDANCE
 
 > One actor can deliberately leave a bounded future possibility at a place; another actor may later notice, hold, ignore, or act through it without inheriting the author's authority.
 
-## Active proof
-
 ### TENET 002 — Cross locality
 
 > One signed tenet crossing may be admitted by one sovereign locality and refused by another; only local admission creates local playability.
+
+## Active proof
+
+### TENET 003 — Addressed world-seed
+
+> A signed crossing may carry only a content address; an admitting locality independently resolves and verifies the addressed bytes before creating local playability, while a refusing locality does not fetch them.
