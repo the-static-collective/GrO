@@ -45,6 +45,8 @@ NEW AFFORDANCE
 - Transport does not carry source jurisdiction into the destination.
 - **A signed address is not the payload; admitted payload bytes are still independently verified.**
 - REFUSE does not require payload fetch.
+- **Retrieval path does not define world-seed identity.**
+- Provider availability is not authority.
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -61,8 +63,12 @@ NEW AFFORDANCE
 
 > One signed tenet crossing may be admitted by one sovereign locality and refused by another; only local admission creates local playability.
 
-## Active proof
-
 ### TENET 003 — Addressed world-seed
 
 > A signed crossing may carry only a content address; an admitting locality independently resolves and verifies the addressed bytes before creating local playability, while a refusing locality does not fetch them.
+
+## Active proof
+
+### TENET 004 — Replaceable Roads
+
+> The same addressed world-seed may be retrieved from materially different independent providers and produce the same verified local consequence; one provider may disappear without killing the seed.
