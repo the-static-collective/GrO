@@ -39,12 +39,16 @@ NEW AFFORDANCE
 - Proof is not authority.
 - Progression is accumulated capability, relation, lineage, and opened possibility — not a universal XP number.
 - A door becoming available does not compel anyone to cross it.
+- **A tenet is an invitation with provenance, not a command with jurisdiction.**
+- Ignoring an affordance is a valid disposition and need not produce a trace.
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
-## Genesis target
+## Landed proofs
 
-The first executable slice proves one thing:
+### GENESIS 001 — The map is consequence
 
 > An action leaves an attributable trace that changes what the same locality affords to the next encounter.
 
-See the first implementation branch for the executable specimen.
+### TENET 001 — Leave possibility
+
+> One actor can deliberately leave a bounded future possibility at a place; another actor may later notice, hold, ignore, or act through it without inheriting the author's authority.
