@@ -51,6 +51,7 @@ NEW AFFORDANCE
 - **Discovery consensus is not required for seed identity.**
 - **A descendant may preserve lineage without preserving the ancestor's road or inheriting its authority.**
 - **Full lineage verification must precede pruning; a checkpoint is a resumability commitment, not history itself.**
+- **A successor checkpoint may replace an older checkpoint body only by binding a compact predecessor anchor; root continuity is not full history re-verification.**
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -87,8 +88,12 @@ NEW AFFORDANCE
 
 > A locally acted-through seed may produce a distinct R10 descendant that moves onto new providers and discovery; later localities can verify and admit the descendant after the ancestor's original provider and map have disappeared.
 
-## Active proof
-
 ### TENET 008 — Generations / Pruning
 
 > X → Y → Z can continue without recursively embedding every ancestor bundle: X→Y is fully verified before checkpointing, Y→Z is directly verified, and Z carries a bounded signed ancestry checkpoint that remains explicitly distinct from full historical re-verification.
+
+## Active proof
+
+### TENET 009 — Checkpoint Succession
+
+> X → Y → Z → Q can continue with Q carrying only the newest checkpoint body: CHECKPOINT(Z) binds root(Y) through a compact signed predecessor anchor while older checkpoint history remains explicitly checkpointed rather than re-verified.
