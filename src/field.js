@@ -71,6 +71,36 @@ export function resolveField({ place, actor, traces = [] }) {
     });
   }
 
+  for (const trace of local.filter((item) => item.kind === "mineral")) {
+    const mineral = trace.mineral;
+
+    affordances.push({
+      id: `encounter-mineral:${trace.traceId}`,
+      kind: "encounter",
+      label: mineral.label,
+      because: [
+        "locally-admitted-mineral",
+        "verified-mineral-evidence"
+      ],
+      sourceTraceId: trace.traceId,
+      dispositions: ["notice", "hold", "ignore", "act-through"]
+    });
+
+    for (const localAction of mineral.actions ?? []) {
+      affordances.push({
+        id: `through-mineral:${trace.traceId}:${localAction.id}`,
+        kind: "action",
+        label: localAction.label,
+        because: [
+          "locally-admitted-mineral",
+          "local-consequence-projection"
+        ],
+        sourceTraceId: trace.traceId,
+        mineralActionId: localAction.id
+      });
+    }
+  }
+
   for (const trace of local.filter((item) => item.kind === "tenet")) {
     const tenet = trace.tenet;
 
@@ -271,6 +301,56 @@ export function act({
 
     // HOLD is actor-local. It does not create a public world trace.
     return { receipt, actor: nextActor, traces };
+  }
+
+  if (actionId.startsWith("through-mineral:")) {
+    const traceId = admitted.sourceTraceId;
+    const source = findTrace(traces, traceId);
+    if (!source || source.kind !== "mineral") {
+      throw new Error(`Mineral trace not found: ${traceId}`);
+    }
+    const localAction = source.mineral.actions?.find(
+      (item) => item.id === admitted.mineralActionId
+    );
+    if (!localAction) {
+      throw new Error("Mineral local action not found");
+    }
+
+    const receipt = makeReceipt({
+      occurredAt,
+      actorId: actor.id,
+      placeId: place.id,
+      action: "act-through-mineral",
+      inputs: [
+        source.receiptId,
+        source.mineral.artifactAddress
+      ],
+      outputs: [
+        "trace:mineral-response",
+        ...(localAction.descendantMineralRequest ? ["want:mineral"] : [])
+      ],
+      priorTraceIds: field.traceIds
+    });
+
+    const response = {
+      schema: "gro.trace.v0",
+      traceId: `trace:${receipt.receiptId.slice("sha256:".length, "sha256:".length + 20)}`,
+      receiptId: receipt.receiptId,
+      placeId: place.id,
+      sourceActorId: actor.id,
+      kind: "mineral-response",
+      tags: ["mineral-response", localAction.effect],
+      relatedMineralTraceId: source.traceId,
+      localActionId: localAction.id,
+      effect: localAction.effect,
+      descendantMineralRequest:
+        localAction.descendantMineralRequest == null
+          ? null
+          : structuredClone(localAction.descendantMineralRequest),
+      authority: "influence-only"
+    };
+
+    return { receipt, actor, traces: [...traces, response] };
   }
 
   if (actionId.startsWith("through-tenet:")) {
