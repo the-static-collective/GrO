@@ -97,6 +97,7 @@ function checkpointSubjectFromVerifiedSeed(verifiedSeed, subjectCrossing) {
     return {
       generation: 1,
       previousLineageRoot: null,
+      predecessorAnchor: null,
       subject: {
         crossingId: nonEmpty(crossing.crossing_id, "INVALID_SUBJECT_CROSSING_ID"),
         payloadAddress: subjectPayloadAddress
@@ -141,13 +142,40 @@ function checkpointSubjectFromVerifiedSeed(verifiedSeed, subjectCrossing) {
       inherited.checkpoint,
       "INVALID_INHERITED_CHECKPOINT_BODY"
     );
+    const priorCrossing = asObject(
+      inherited.checkpointCrossing,
+      "INVALID_INHERITED_CHECKPOINT_CROSSING"
+    );
+    const priorGeneration = Number(prior.generation);
+    if (!Number.isInteger(priorGeneration) || priorGeneration < 1) {
+      throw new Error("INVALID_PREDECESSOR_GENERATION");
+    }
 
     return {
-      generation: Number(prior.generation) + 1,
+      generation: priorGeneration + 1,
       previousLineageRoot: nonEmpty(
         prior.lineageRoot,
         "INVALID_PREVIOUS_LINEAGE_ROOT"
       ),
+      predecessorAnchor: {
+        checkpointId: nonEmpty(
+          prior.checkpointId,
+          "INVALID_PREDECESSOR_CHECKPOINT_ID"
+        ),
+        checkpointAddress: requireAddress(
+          inherited.address,
+          "INVALID_PREDECESSOR_CHECKPOINT_ADDRESS"
+        ),
+        checkpointCrossingId: nonEmpty(
+          priorCrossing.crossing_id,
+          "INVALID_PREDECESSOR_CHECKPOINT_CROSSING_ID"
+        ),
+        lineageRoot: nonEmpty(
+          prior.lineageRoot,
+          "INVALID_PREDECESSOR_LINEAGE_ROOT"
+        ),
+        generation: priorGeneration
+      },
       subject: {
         crossingId: nonEmpty(crossing.crossing_id, "INVALID_SUBJECT_CROSSING_ID"),
         payloadAddress: subjectPayloadAddress
@@ -181,6 +209,7 @@ function checkpointRootBody(body) {
   return {
     generation: body.generation,
     previousLineageRoot: body.previousLineageRoot,
+    predecessorAnchor: body.predecessorAnchor,
     subject: body.subject,
     directParent: body.directParent,
     verification: body.verification,
@@ -194,6 +223,7 @@ function checkpointIdentityBody(body) {
     checkpointWorldId: body.checkpointWorldId,
     generation: body.generation,
     previousLineageRoot: body.previousLineageRoot,
+    predecessorAnchor: body.predecessorAnchor,
     subject: body.subject,
     directParent: body.directParent,
     verification: body.verification,
@@ -236,6 +266,7 @@ export function createLineageCheckpoint({
     ),
     generation: relation.generation,
     previousLineageRoot: relation.previousLineageRoot,
+    predecessorAnchor: relation.predecessorAnchor,
     subject: relation.subject,
     directParent: relation.directParent,
     verification: relation.verification,
@@ -250,7 +281,8 @@ export function createLineageCheckpoint({
       "PRUNING != RETCON",
       "LINEAGE ROOT != AUTHORITY",
       "FULL VERIFICATION PRECEDES PRUNING",
-      "REHYDRATION MAY RECHECK HISTORY"
+      "REHYDRATION MAY RECHECK HISTORY",
+      "SUCCESSOR ROOT BINDS PREDECESSOR ANCHOR"
     ]
   };
 
@@ -275,6 +307,74 @@ export function addressLineageCheckpoint(checkpoint) {
   };
 }
 
+
+function checkpointSuccessionShape(checkpoint) {
+  const generation = Number(checkpoint.generation);
+  if (!Number.isInteger(generation) || generation < 1) {
+    throw new Error("INVALID_LINEAGE_CHECKPOINT_GENERATION");
+  }
+
+  if (generation === 1) {
+    if (
+      checkpoint.previousLineageRoot !== null ||
+      checkpoint.predecessorAnchor !== null
+    ) {
+      throw new Error("GENESIS_CHECKPOINT_MUST_NOT_HAVE_PREDECESSOR");
+    }
+    return {
+      generation,
+      predecessorAnchor: null,
+      expectedParents: [checkpoint.subject.crossingId]
+    };
+  }
+
+  const anchor = asObject(
+    checkpoint.predecessorAnchor,
+    "SUCCESSOR_CHECKPOINT_REQUIRES_PREDECESSOR_ANCHOR"
+  );
+  const anchorGeneration = Number(anchor.generation);
+  if (
+    !Number.isInteger(anchorGeneration) ||
+    anchorGeneration !== generation - 1
+  ) {
+    throw new Error("PREDECESSOR_GENERATION_MISMATCH");
+  }
+
+  const lineageRoot = nonEmpty(
+    anchor.lineageRoot,
+    "INVALID_PREDECESSOR_LINEAGE_ROOT"
+  );
+  if (checkpoint.previousLineageRoot !== lineageRoot) {
+    throw new Error("PREDECESSOR_LINEAGE_ROOT_MISMATCH");
+  }
+
+  const normalized = {
+    checkpointId: nonEmpty(
+      anchor.checkpointId,
+      "INVALID_PREDECESSOR_CHECKPOINT_ID"
+    ),
+    checkpointAddress: requireAddress(
+      anchor.checkpointAddress,
+      "INVALID_PREDECESSOR_CHECKPOINT_ADDRESS"
+    ),
+    checkpointCrossingId: nonEmpty(
+      anchor.checkpointCrossingId,
+      "INVALID_PREDECESSOR_CHECKPOINT_CROSSING_ID"
+    ),
+    lineageRoot,
+    generation: anchorGeneration
+  };
+
+  return {
+    generation,
+    predecessorAnchor: normalized,
+    expectedParents: [
+      checkpoint.subject.crossingId,
+      normalized.checkpointCrossingId
+    ]
+  };
+}
+
 export function makeLineageCheckpointDraft({
   checkpoint,
   checkpointAddress,
@@ -286,6 +386,8 @@ export function makeLineageCheckpointDraft({
     checkpointAddress,
     "INVALID_LINEAGE_CHECKPOINT_ADDRESS"
   );
+
+  const succession = checkpointSuccessionShape(body);
 
   return {
     schema: "relatte.crossing-envelope/v0",
@@ -302,9 +404,7 @@ export function makeLineageCheckpointDraft({
       body.localReceiptSetCommitment.receipt_set_root,
       "INVALID_CHECKPOINT_HISTORY_ROOT"
     ),
-    parents: [
-      nonEmpty(body.subject.crossingId, "INVALID_CHECKPOINT_SUBJECT_CROSSING")
-    ],
+    parents: succession.expectedParents,
     declared_kind: "R11_LINEAGE_CHECKPOINT",
     payload_refs: [
       {
@@ -324,6 +424,8 @@ export function makeLineageCheckpointDraft({
         checkpoint_id: body.checkpointId,
         lineage_root: body.lineageRoot,
         generation: body.generation,
+        previous_lineage_root: body.previousLineageRoot,
+        predecessor_anchor: body.predecessorAnchor,
         semantic_effect: "none",
         authority: null,
         laws: [
@@ -374,6 +476,8 @@ export async function verifyLineageCheckpoint({
     throw new Error("LINEAGE_CHECKPOINT_AUTHORITY_ESCALATION");
   }
 
+  const succession = checkpointSuccessionShape(checkpoint);
+
   const rootExpected = `gro-lineage-root-v0:${sha256(
     Buffer.from(stableStringify(checkpointRootBody(checkpoint)), "utf8")
   )}`;
@@ -413,8 +517,8 @@ export async function verifyLineageCheckpoint({
   if (
     crossing.source_world !== checkpoint.checkpointWorldId ||
     !Array.isArray(crossing.parents) ||
-    crossing.parents.length !== 1 ||
-    crossing.parents[0] !== checkpoint.subject.crossingId
+    stableStringify(crossing.parents) !==
+      stableStringify(succession.expectedParents)
   ) {
     throw new Error("LINEAGE_CHECKPOINT_CROSSING_RELATION_MISMATCH");
   }
@@ -438,6 +542,9 @@ export async function verifyLineageCheckpoint({
     extension.checkpoint_id !== checkpoint.checkpointId ||
     extension.lineage_root !== checkpoint.lineageRoot ||
     extension.generation !== checkpoint.generation ||
+    extension.previous_lineage_root !== checkpoint.previousLineageRoot ||
+    stableStringify(extension.predecessor_anchor ?? null) !==
+      stableStringify(checkpoint.predecessorAnchor ?? null) ||
     extension.semantic_effect !== "none" ||
     extension.authority !== null
   ) {
@@ -448,7 +555,9 @@ export async function verifyLineageCheckpoint({
     address,
     checkpoint,
     checkpointCrossing: crossing,
-    checkpointVerified: true
+    checkpointVerified: true,
+    successionVerified: true,
+    predecessorAnchor: succession.predecessorAnchor
   };
 }
 
