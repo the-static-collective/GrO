@@ -285,12 +285,17 @@ export async function interpretMineralWorldSeedArrival({
     throw new Error("MINERAL_DESTINATION_WORLD_MISMATCH");
   }
 
-  const adapter = asObject(
-    asObject(envelope.extensions, "INVALID_MINERAL_CROSSING_EXTENSIONS")
-      .organ_adapter,
-    "INVALID_MINERAL_ORGAN_ADAPTER"
-  );
-  if (adapter.family_ref !== GRO_MINERAL_WORLD_SEED_FAMILY_REF) {
+  const adapter =
+    envelope.extensions &&
+    typeof envelope.extensions === "object" &&
+    envelope.extensions.organ_adapter &&
+    typeof envelope.extensions.organ_adapter === "object"
+      ? envelope.extensions.organ_adapter
+      : null;
+  if (
+    adapter &&
+    adapter.family_ref !== GRO_MINERAL_WORLD_SEED_FAMILY_REF
+  ) {
     throw new Error("UNSUPPORTED_MINERAL_WORLD_SEED_FAMILY");
   }
 
@@ -335,6 +340,10 @@ export async function interpretMineralWorldSeedArrival({
   }
   if (payload.semanticEffect !== "none" || payload.authority !== null) {
     throw new Error("MINERAL_WORLD_SEED_AUTHORITY_ESCALATION");
+  }
+
+  if (!adapter && !payload.ancestry) {
+    throw new Error("SOURCE_MINERAL_WORLD_SEED_REQUIRES_ORGAN_ADAPTER");
   }
 
   const mineral = asObject(payload.mineral, "INVALID_MINERAL_BODY");
