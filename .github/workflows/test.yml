@@ -212,3 +212,24 @@ jobs:
           ref: impl/sparse-ice-probe-001
           path: .deps/Dogram
       - run: node --experimental-strip-types examples/mineral-world-seed-001.mjs .deps/reLATTE .deps/GHoT .deps/Dogram
+
+
+  fork-garden-001:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: the-static-collective/reLATTE
+          ref: 87006f3265103a8abe387d81597c58aeb39b0beb
+          path: .deps/reLATTE
+      - run: npm install --prefix .deps/reLATTE --no-audit --no-fund
+      - uses: actions/checkout@v4
+        with:
+          repository: the-static-collective/GHoT
+          ref: gro-mineral-bridge-001
+          path: .deps/GHoT
+      - run: node --experimental-strip-types examples/fork-garden-001.mjs .deps/reLATTE .deps/GHoT
