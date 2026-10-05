@@ -79,6 +79,7 @@ function normalizedVerifiedCheckpoint(value) {
         "INVALID_FORK_SUBJECT_PAYLOAD_ADDRESS"
       )
     },
+    directParent: structuredClone(checkpoint.directParent ?? null),
     predecessorAnchor: structuredClone(predecessor)
   };
 }
@@ -103,6 +104,7 @@ export function observeCheckpointFork({ verifiedCheckpoints }) {
 
   const first = branches[0];
   const predecessorKey = stableStringify(first.predecessorAnchor);
+  const directParentKey = stableStringify(first.directParent);
 
   for (const branch of branches.slice(1)) {
     if (branch.generation !== first.generation) {
@@ -113,6 +115,9 @@ export function observeCheckpointFork({ verifiedCheckpoints }) {
     }
     if (stableStringify(branch.predecessorAnchor) !== predecessorKey) {
       throw new Error("FORK_PREDECESSOR_MISMATCH");
+    }
+    if (stableStringify(branch.directParent) !== directParentKey) {
+      throw new Error("FORK_DIRECT_PARENT_MISMATCH");
     }
   }
 
@@ -137,7 +142,8 @@ export function observeCheckpointFork({ verifiedCheckpoints }) {
       checkpointAddress: branch.checkpointAddress,
       checkpointCrossingId: branch.checkpointCrossingId,
       lineageRoot: branch.lineageRoot,
-      subject: structuredClone(branch.subject)
+      subject: structuredClone(branch.subject),
+      directParent: structuredClone(branch.directParent)
     })),
     canonicalBranchId: null,
     conflict: false,
