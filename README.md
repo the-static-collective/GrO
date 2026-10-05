@@ -50,6 +50,7 @@ NEW AFFORDANCE
 - **Discovery may reveal candidate roads; it does not define the seed or authorize the road.**
 - **Discovery consensus is not required for seed identity.**
 - **A descendant may preserve lineage without preserving the ancestor's road or inheriting its authority.**
+- **Full lineage verification must precede pruning; a checkpoint is a resumability commitment, not history itself.**
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -82,8 +83,12 @@ NEW AFFORDANCE
 
 > Independent discovery systems with disjoint provider sets may disagree about the roads and still converge on the same world-seed and local consequence without directory consensus.
 
-## Active proof
-
 ### TENET 007 — Descendant Without Broadcast
 
 > A locally acted-through seed may produce a distinct R10 descendant that moves onto new providers and discovery; later localities can verify and admit the descendant after the ancestor's original provider and map have disappeared.
+
+## Active proof
+
+### TENET 008 — Generations / Pruning
+
+> X → Y → Z can continue without recursively embedding every ancestor bundle: X→Y is fully verified before checkpointing, Y→Z is directly verified, and Z carries a bounded signed ancestry checkpoint that remains explicitly distinct from full historical re-verification.
