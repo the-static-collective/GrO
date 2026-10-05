@@ -65,7 +65,11 @@ function normalizeTenet(value, actorId) {
   };
 }
 
-function checkpointSubjectFromVerifiedSeed(verifiedSeed, subjectCrossing) {
+function checkpointSubjectFromVerifiedSeed(
+  verifiedSeed,
+  subjectCrossing,
+  predecessorCheckpoint = null
+) {
   const verified = asObject(verifiedSeed, "INVALID_VERIFIED_SEED");
   if (verified.lineageVerified !== true) {
     throw new Error("FULL_LINEAGE_VERIFICATION_REQUIRED_BEFORE_CHECKPOINT");
@@ -82,6 +86,121 @@ function checkpointSubjectFromVerifiedSeed(verifiedSeed, subjectCrossing) {
     ? crossing.payload_refs.some((entry) => entry?.address === subjectPayloadAddress)
     : false;
   if (!bound) throw new Error("SUBJECT_CROSSING_DOES_NOT_BIND_PAYLOAD");
+
+  if (payload.schema === "gro.mineral-world-seed.v0") {
+    const ancestry = payload.ancestry;
+    const subject = {
+      crossingId: nonEmpty(
+        crossing.crossing_id,
+        "INVALID_SUBJECT_CROSSING_ID"
+      ),
+      payloadAddress: subjectPayloadAddress
+    };
+
+    if (ancestry == null) {
+      if (predecessorCheckpoint != null) {
+        throw new Error("ROOT_MINERAL_CHECKPOINT_MUST_NOT_HAVE_PREDECESSOR");
+      }
+      return {
+        generation: 1,
+        previousLineageRoot: null,
+        predecessorAnchor: null,
+        subject,
+        directParent: null,
+        verification: {
+          mode: "full-mineral-evidence-before-checkpoint",
+          mineralVerificationReceiptAddress: requireAddress(
+            payload.verification?.receiptAddress,
+            "INVALID_MINERAL_VERIFICATION_RECEIPT_ADDRESS"
+          ),
+          evidenceAddress: subjectPayloadAddress
+        }
+      };
+    }
+
+    const predecessor = asObject(
+      predecessorCheckpoint,
+      "MINERAL_DESCENDANT_REQUIRES_PREDECESSOR_CHECKPOINT"
+    );
+    if (
+      predecessor.checkpointVerified !== true ||
+      predecessor.successionVerified !== true
+    ) {
+      throw new Error("VERIFIED_MINERAL_PREDECESSOR_CHECKPOINT_REQUIRED");
+    }
+    const prior = asObject(
+      predecessor.checkpoint,
+      "INVALID_MINERAL_PREDECESSOR_CHECKPOINT"
+    );
+    const priorCrossing = asObject(
+      predecessor.checkpointCrossing,
+      "INVALID_MINERAL_PREDECESSOR_CHECKPOINT_CROSSING"
+    );
+    if (
+      prior.subject?.crossingId !== ancestry.ancestorCrossingId ||
+      prior.subject?.payloadAddress !== ancestry.ancestorSeedAddress
+    ) {
+      throw new Error("MINERAL_PREDECESSOR_DOES_NOT_MATCH_ANCESTOR");
+    }
+    const priorGeneration = Number(prior.generation);
+    if (!Number.isInteger(priorGeneration) || priorGeneration < 1) {
+      throw new Error("INVALID_MINERAL_PREDECESSOR_GENERATION");
+    }
+
+    return {
+      generation: priorGeneration + 1,
+      previousLineageRoot: nonEmpty(
+        prior.lineageRoot,
+        "INVALID_PREVIOUS_LINEAGE_ROOT"
+      ),
+      predecessorAnchor: {
+        checkpointId: nonEmpty(
+          prior.checkpointId,
+          "INVALID_PREDECESSOR_CHECKPOINT_ID"
+        ),
+        checkpointAddress: requireAddress(
+          predecessor.address,
+          "INVALID_PREDECESSOR_CHECKPOINT_ADDRESS"
+        ),
+        checkpointCrossingId: nonEmpty(
+          priorCrossing.crossing_id,
+          "INVALID_PREDECESSOR_CHECKPOINT_CROSSING_ID"
+        ),
+        lineageRoot: nonEmpty(
+          prior.lineageRoot,
+          "INVALID_PREDECESSOR_LINEAGE_ROOT"
+        ),
+        generation: priorGeneration
+      },
+      subject,
+      directParent: {
+        crossingId: nonEmpty(
+          ancestry.ancestorCrossingId,
+          "INVALID_MINERAL_ANCESTOR_CROSSING"
+        ),
+        payloadAddress: requireAddress(
+          ancestry.ancestorSeedAddress,
+          "INVALID_MINERAL_ANCESTOR_SEED_ADDRESS"
+        )
+      },
+      verification: {
+        mode: "full-mineral-evidence-and-descendant-lineage-before-checkpoint",
+        actionReceiptId: nonEmpty(
+          ancestry.actionReceiptId,
+          "INVALID_MINERAL_ANCESTOR_ACTION_RECEIPT"
+        ),
+        wantId: nonEmpty(
+          ancestry.wantId,
+          "INVALID_MINERAL_ANCESTOR_WANT"
+        ),
+        mineralVerificationReceiptAddress: requireAddress(
+          payload.verification?.receiptAddress,
+          "INVALID_MINERAL_VERIFICATION_RECEIPT_ADDRESS"
+        ),
+        evidenceAddress: subjectPayloadAddress
+      }
+    };
+  }
 
   if (payload.schema === "gro.descendant-world-seed.v1") {
     const ancestor = asObject(payload.ancestor, "INVALID_CHECKPOINT_ANCESTOR");
@@ -239,13 +358,15 @@ function checkpointIdentityBody(body) {
 export function createLineageCheckpoint({
   verifiedSeed,
   subjectCrossing,
+  predecessorCheckpoint = null,
   localReceiptSetCommitment,
   checkpointWorldId,
   createdAt
 }) {
   const relation = checkpointSubjectFromVerifiedSeed(
     verifiedSeed,
-    subjectCrossing
+    subjectCrossing,
+    predecessorCheckpoint
   );
   const commitment = asObject(
     localReceiptSetCommitment,
