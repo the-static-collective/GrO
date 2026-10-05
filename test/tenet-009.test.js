@@ -41,7 +41,7 @@ async function fixture() {
       schema: "gro.descendant-world-seed.v1",
       ancestor: {
         crossingId: "crossing:x",
-        payloadAddress: sha("x")
+        payloadAddress: sha("d")
       },
       action: {
         receipt: {
