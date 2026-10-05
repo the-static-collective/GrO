@@ -49,6 +49,7 @@ NEW AFFORDANCE
 - Provider availability is not authority.
 - **Discovery may reveal candidate roads; it does not define the seed or authorize the road.**
 - **Discovery consensus is not required for seed identity.**
+- **A descendant may preserve lineage without preserving the ancestor's road or inheriting its authority.**
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -77,8 +78,12 @@ NEW AFFORDANCE
 
 > An untrusted discovery layer may suggest stale, duplicate, malformed, or lying provider candidates; only independently verified bytes matching the signed world-seed address may continue toward local playability.
 
-## Active proof
-
 ### TENET 006 — Many Maps, One Seed
 
 > Independent discovery systems with disjoint provider sets may disagree about the roads and still converge on the same world-seed and local consequence without directory consensus.
+
+## Active proof
+
+### TENET 007 — Descendant Without Broadcast
+
+> A locally acted-through seed may produce a distinct R10 descendant that moves onto new providers and discovery; later localities can verify and admit the descendant after the ancestor's original provider and map have disappeared.
