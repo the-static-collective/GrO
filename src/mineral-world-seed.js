@@ -310,7 +310,6 @@ export async function interpretMineralWorldSeedArrival({
   const ref = Array.isArray(envelope.payload_refs)
     ? envelope.payload_refs.find(
         (entry) =>
-          entry?.role === "gro-mineral-world-seed" &&
           entry?.media_type === GRO_MINERAL_WORLD_SEED_MEDIA_TYPE
       )
     : null;
