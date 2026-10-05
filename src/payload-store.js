@@ -37,6 +37,19 @@ export async function writeAddressedJson(root, value) {
   return { address, path, bytes: Buffer.from(bytes) };
 }
 
+export async function writeAddressedBytes(root, value) {
+  const bytes = Buffer.isBuffer(value)
+    ? Buffer.from(value)
+    : value instanceof Uint8Array
+      ? Buffer.from(value)
+      : Buffer.from(value);
+  const address = `sha256:${digest(bytes)}`;
+  const path = addressedPath(root, address);
+  await mkdir(join(root, "sha256"), { recursive: true });
+  await writeFile(path, bytes);
+  return { address, path, bytes };
+}
+
 export async function readAddressedBytes(root, address) {
   const path = addressedPath(root, address);
   const bytes = await readFile(path);
