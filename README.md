@@ -52,6 +52,7 @@ NEW AFFORDANCE
 - **A descendant may preserve lineage without preserving the ancestor's road or inheriting its authority.**
 - **Full lineage verification must precede pruning; a checkpoint is a resumability commitment, not history itself.**
 - **A successor checkpoint may replace an older checkpoint body only by binding a compact predecessor anchor; root continuity is not full history re-verification.**
+- **A fork is multiplicity, not conflict or canon; incompatibility must be declared by a relevant local rule.**
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -92,8 +93,12 @@ NEW AFFORDANCE
 
 > X → Y → Z can continue without recursively embedding every ancestor bundle: X→Y is fully verified before checkpointing, Y→Z is directly verified, and Z carries a bounded signed ancestry checkpoint that remains explicitly distinct from full historical re-verification.
 
-## Active proof
-
 ### TENET 009 — Checkpoint Succession
 
 > X → Y → Z → Q can continue with Q carrying only the newest checkpoint body: CHECKPOINT(Z) binds root(Y) through a compact signed predecessor anchor while older checkpoint history remains explicitly checkpointed rather than re-verified.
+
+## Active proof
+
+### TENET 010 — Fork ≠ Conflict
+
+> Two verified successor checkpoints may lawfully share one predecessor root without producing a canonical winner or conflict; later sovereign localities may admit both, hold one, or declare a specific local incompatibility rule.
