@@ -430,6 +430,12 @@ export async function interpretMineralWorldSeedArrival({
   return {
     status: "admitted",
     disposition: receipt.kind,
+    verifiedSeed: {
+      address: ref.address,
+      payload: structuredClone(payload),
+      lineageVerified: true,
+      mineralEvidenceVerified: true
+    },
     trace: {
       schema: "gro.trace.v0",
       traceId: `trace:${digest.slice(0, 20)}`,
