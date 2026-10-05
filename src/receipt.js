@@ -28,3 +28,25 @@ export function makeReceipt(event) {
     }
   };
 }
+
+export function verifyOccurrenceReceipt(value) {
+  try {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return false;
+    }
+
+    const recomputed = makeReceipt({
+      occurredAt: value.occurredAt,
+      actorId: value.actorId,
+      placeId: value.placeId,
+      action: value.action,
+      inputs: value.inputs,
+      outputs: value.outputs,
+      priorTraceIds: value.priorTraceIds
+    });
+
+    return stableStringify(value) === stableStringify(recomputed);
+  } catch {
+    return false;
+  }
+}
