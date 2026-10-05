@@ -54,6 +54,7 @@ NEW AFFORDANCE
 - **A successor checkpoint may replace an older checkpoint body only by binding a compact predecessor anchor; root continuity is not full history re-verification.**
 - **A fork is multiplicity, not conflict or canon; incompatibility must be declared by a relevant local rule.**
 - **Recombination is a fresh local act over co-eligible parents; composition does not canonicalize or erase ancestry.**
+- **A recombinant checkpoint may collapse multiple verified parent checkpoints into one bounded graph frontier; a frontier commits to ancestry without becoming history, canon, or authority.**
 - GrO preserves enough trace to make consequence attributable without requiring a single global game-master database.
 
 ## Landed proofs
@@ -102,8 +103,12 @@ NEW AFFORDANCE
 
 > Two verified successor checkpoints may lawfully share one predecessor root without producing a canonical winner or conflict; later sovereign localities may admit both, hold one, or declare a specific local incompatibility rule.
 
-## Active proof
-
 ### TENET 011 — Recombination Without Collapse
 
 > Two locally admitted, simultaneously eligible fork branches may become explicit parents of a fresh descendant W without canonicalizing, erasing, or inheriting authority from either parent.
+
+## Active proof
+
+### TENET 012 — Recombinant Checkpoint / Graph Frontier
+
+> A verified recombinant W may be checkpointed into one bounded multi-parent frontier; later descendant V directly verifies W→V while carrying one graph-frontier checkpoint and zero parent checkpoint bodies.
