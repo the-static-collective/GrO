@@ -362,6 +362,28 @@ export async function interpretMineralWorldSeedArrival({
       evidence.status === "OK");
   if (!verified) throw new Error("MINERAL_EVIDENCE_VERIFICATION_FAILED");
 
+  if (evidence && typeof evidence === "object") {
+    const evidenceReceipt =
+      evidence.receipt && typeof evidence.receipt === "object"
+        ? evidence.receipt
+        : evidence;
+    const receiptAddress = addressBytes(
+      Buffer.from(stableStringify(evidenceReceipt), "utf8")
+    );
+    if (receiptAddress !== payload.verification.receiptAddress) {
+      throw new Error("MINERAL_VERIFICATION_RECEIPT_ADDRESS_MISMATCH");
+    }
+    const observedScope =
+      evidence.claimScope ??
+      evidence.claim_scope ??
+      evidenceReceipt.claim_scope ??
+      evidenceReceipt.result?.claim_scope ??
+      null;
+    if (observedScope !== payload.verification.claimScope) {
+      throw new Error("MINERAL_VERIFICATION_SCOPE_MISMATCH");
+    }
+  }
+
   if (payload.ancestry) {
     if (typeof verifyDescendantLineage !== "function") {
       throw new Error("MINERAL_DESCENDANT_LINEAGE_VERIFIER_REQUIRED");
@@ -505,7 +527,7 @@ export function makeDescendantMineralWant({
     laws: [
       "CONSEQUENCE != EXECUTION",
       "WANT != AUTHORIZATION",
-      "GR0 ACTION != GHOT ASSIGNMENT"
+      "GRO ACTION != GHOT ASSIGNMENT"
     ]
   };
   return {
