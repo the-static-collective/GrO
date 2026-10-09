@@ -35,6 +35,71 @@ qualified operation or roadworthiness.
 numbers, identifying occupancy information or private notes into
 GitHub, the public PR, or CI fixtures.**
 
+## Current repair lead — engine control module (ECM)
+
+The participant reports that the bus **needs an ECM**. Treat that as the
+working repair lead, **not** as independent evidence that the controller has
+actually failed. Bus chassis year/make/model alone is insufficient to order
+a replacement: engine family, ECM hardware and compatible calibration,
+and any required authorized programming must be established first.
+
+The offline module `src/field-ship-ecm.js` adds an 11-check track:
+
+1. Identify engine model/family *privately*, without exporting engine
+   serial, VIN, plate or identifying numbers to GitHub.
+2. Read/record the original controller's hardware ID or known-reliable
+   replacement cross-reference *privately*.
+3. Confirm the diagnosis and available fault evidence with a qualified
+   diesel/bus technician who has appropriate diagnostic tools.
+4. Check batteries, ECM supply power, ground integrity, connectors and
+   harness for voltage/corrosion/open-circuit/network issues before
+   condemning the module.
+5. Verify diagnostic communication and distinguish an ECM problem from
+   another engine-control or network component.
+6. Verify replacement compatibility **and** authorized software/
+   calibration/programming availability before purchasing a module.
+7. After qualified installation/programming, document fault rechecks and
+   obtain a separate qualified decision before a controlled starting test.
+
+Do **not** use this software to defeat emissions/safety systems,
+immobilizers, module security or required authorizations. There is no
+connection to the ECM and no diagnostic scanner, engine control, flash
+programmer or motor actuation in this experiment.
+
+`assessEcmRecovery` intentionally only progresses between three
+*paperwork* states:
+
+```text
+QUALIFIED_DIAGNOSIS_AND_MODULE_IDENTIFICATION
+                 |
+AUTHORIZED_INSTALLATION_PROGRAMMING_AND_POSTCHECK
+                 |
+READY_FOR_SEPARATE_QUALIFIED_TECHNICIAN_RELEASE
+```
+
+Even the final state grants **no** permission to order a part, program
+a controller, start the engine or drive/tow the bus. Local `reviewed`
+bookkeeping does not independently certify the competence of a technician,
+the authenticity of parts, calibration or road safety.
+
+`makeEcmDeskStudyCandidate` generates an unexecuted, privacy-safe GHoT
+task-shaped proposal. The private VIN, title image, engine serial, family
+house location, old ECM numbers and notes never enter that proposal.
+
+Run the checks:
+
+```bash
+node --test test/field-ship-ecm.test.js
+```
+
+The *next factual inputs*, without sharing private numbers, are whether
+the old ECM is still physically present, whether a mechanic/scanner
+diagnosed it as bad, and the engine family/model. The part number may be
+used later **privately** to match a legitimate compatible replacement.
+A dead ECM can prevent a running engine, but replacing it alone will
+not establish brakes, tires, lights, steering, registration, insurance
+or the right to operate on public roads.
+
 ## Road revival stages
 
 | Stage | Goal | Actual guard |
