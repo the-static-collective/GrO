@@ -120,3 +120,20 @@ node examples/land-crossing-001.js
 ```
 
 This experiment does not change the existing GrO world/tenet rules and does not grant anyone new physical or digital execution authority.
+
+## PROPERTY-002 — Private Site Readiness (draft)
+
+The [private-site intake](docs/PROPERTY-002-PRIVATE-SITES.md) prepares two blank
+personal site candidates **without putting their addresses or legal documents
+in GitHub**. It is strictly local and opt-in: separate evidence review for
+authority, consent, occupant access, activity scope, local rules, safety,
+environmental requirements and permits; no software decision grants entry
+or permission for physical work.
+
+```bash
+node scripts/property-002-local.mjs init /absolute/private/off-repo/path
+node scripts/property-002-local.mjs audit /absolute/private/off-repo/path
+```
+
+A separately approved redacted report may later be created and signed, but
+**no real candidate data is used in repository tests or published by default**.
