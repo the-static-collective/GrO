@@ -2,7 +2,6 @@
 // GHoT two-phone SYNTHETIC custody claim. No ledger or public world trace.
 // Input is an independently reviewed, minimized descriptor, never a
 // source-signed, certified transport event. The caller owns crypto checks.
-import {resolveField} from "./field.js";
 
 const SHA = /^[0-9a-f]{64}$/;
 const ROUTE = /^[a-z][a-z0-9-]{2,63}$/;
@@ -42,7 +41,6 @@ export function projectPostalEncounter({
          "POSTAL_ACTOR_MUST_BE_LOCAL");
   assert(Array.isArray(traces) && CHOICES.includes(choice),
          "POSTAL_CHOICE_INVALID");
-  const original=resolveField({place,actor,traces});
   const affordance={
     id:"postal-inspect:"+checked.history_head,
     kind:"encounter",label:"Review an unverified synthetic handoff",
@@ -55,7 +53,8 @@ export function projectPostalEncounter({
   return {
     schema:"gro.postal-local-field-projection/v0",
     descriptor:checked,choice,placeId:place.id,actorId:actor.id,
-    field:{...original,affordances:[...original.affordances,affordance]},
+    field:{schema:"gro.postal-local-field/v0",placeId:place.id,actorId:actor.id,
+           affordances:[affordance]},
     traces,publicTraceEmitted:false,
     physicalParcelMoved:false,postalServiceAuthorized:false,
     fullMeasureDeedAwarded:false,pennyUnitsIssued:0,paymentClaimed:false,
