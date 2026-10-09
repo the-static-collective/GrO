@@ -1,0 +1,82 @@
+name: PROPERTY-002 Private Site Readiness
+
+on:
+  push:
+    paths:
+      - "src/property-readiness.js"
+      - "test/property-readiness.test.js"
+      - "scripts/property-002-local.mjs"
+      - "docs/PROPERTY-002-PRIVATE-SITES.md"
+      - ".github/workflows/property-002.yml"
+  pull_request:
+    paths:
+      - "src/property-readiness.js"
+      - "test/property-readiness.test.js"
+      - "scripts/property-002-local.mjs"
+      - "docs/PROPERTY-002-PRIVATE-SITES.md"
+      - ".github/workflows/property-002.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  private-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test strict private schemas and refusal of unauthorized real-property effects
+        run: node --test test/property-readiness.test.js
+      - name: Create two synthetic off-repo candidates and audit in private
+        shell: bash
+        run: |
+          set -euo pipefail
+          PRIVATE="$RUNNER_TEMP/gro-property002-secret-fixture"
+          echo "GRO_PROPERTY_TEST_PRIVATE=$PRIVATE" >> "$GITHUB_ENV"
+          node scripts/property-002-local.mjs init "$PRIVATE"
+          node -e '
+            const f=require("fs"),p=process.argv[1];
+            const a=JSON.parse(f.readFileSync(p));
+            a.candidates[0].private_location="NON_PUBLIC_FAKE_ADDRESS_DO_NOT_PUBLISH_124872";
+            a.candidates[0].private_contact="NON_PUBLIC_FAKE_CONTACT_DO_NOT_PUBLISH";
+            a.candidates[0].private_notes="NON_PUBLIC_FAKE_NOTES_DO_NOT_PUBLISH";
+            a.candidates[0].activity="site-visit";
+            a.candidates[0].evidence.authority={
+              state:"claimed",local_reference:"NON_PUBLIC_FAKE_DOCUMENT_REF",
+              reviewed_at:null,expires_at:null,revoked_at:null
+            };
+            f.writeFileSync(p,JSON.stringify(a,null,2)+"\n",{mode:0o600});
+          ' "$PRIVATE/intake.private.json"
+          node scripts/property-002-local.mjs audit "$PRIVATE" > "$RUNNER_TEMP/property002-private-audit.json"
+          # This audit stays on the runner only, never in an artifact.
+      - name: Require explicit export and cold-verify redacted signed evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p work/property-002-public
+          PRIVATE="$GRO_PROPERTY_TEST_PRIVATE"
+          OUTPUT=work/property-002-public/synthetic-only-redacted.json
+          if node scripts/property-002-local.mjs export-redacted "$PRIVATE" "$OUTPUT"; then
+            echo "FAIL: redacted export without approval was accepted" >&2
+            exit 1
+          fi
+          node scripts/property-002-local.mjs export-redacted "$PRIVATE" "$OUTPUT" --explicit-redacted-export > "$RUNNER_TEMP/property002-export-log.json"
+          PIN="$(node -e 'const f=require("fs");process.stdout.write(JSON.parse(f.readFileSync(process.argv[1])).public_signer_fingerprint)' "$RUNNER_TEMP/property002-export-log.json")"
+          node scripts/property-002-local.mjs verify-redacted "$OUTPUT" "$PIN"
+          if grep -Eq "NON_PUBLIC_FAKE_ADDRESS|NON_PUBLIC_FAKE_CONTACT|NON_PUBLIC_FAKE_NOTES|NON_PUBLIC_FAKE_DOCUMENT" "$OUTPUT"; then
+            echo "FAIL: private candidate data leaked" >&2
+            exit 1
+          fi
+          if [ ! -s "$OUTPUT" ]; then exit 1; fi
+          if grep -Eq "PRIVATE KEY|BEGIN PRIVATE|hmac.secret" "$OUTPUT"; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: property-002-synthetic-redacted-witness
+          path: work/property-002-public/synthetic-only-redacted.json
+          retention-days: 7
+          if-no-files-found: error
