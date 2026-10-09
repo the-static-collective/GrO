@@ -1,0 +1,57 @@
+name: FIELD-SHIP-003 Mobile Revival
+
+on:
+  push:
+    paths:
+      - "src/field-ship.js"
+      - "test/field-ship.test.js"
+      - "examples/field-ship-003.mjs"
+      - "docs/FIELD-SHIP-003.md"
+      - ".github/workflows/field-ship-003.yml"
+  pull_request:
+    paths:
+      - "src/field-ship.js"
+      - "test/field-ship.test.js"
+      - "examples/field-ship-003.mjs"
+      - "docs/FIELD-SHIP-003.md"
+      - ".github/workflows/field-ship-003.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  revival:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run adversarial ship and hangar tests
+        run: node --test test/field-ship.test.js
+      - name: Prepare a synthetic mobile revival packet
+        run: |
+          node examples/field-ship-003.mjs work/field-ship-003 | tee /tmp/field-ship-003-output.json
+          node -e '
+            const fs=require("fs");
+            const p=JSON.parse(fs.readFileSync("work/field-ship-003/synthetic-field-ship-003.json"));
+            if(!p.simulation_only||p.hardware_tested||p.real_world_vehicle_movement_authorized||
+               p.physical_work_executed!==0||p.inspect.review_state!=="INSPECTION_PLAN_ONLY"||
+               p.drive.review_state!=="HOLD"||p.professional_tow.review_state!=="HOLD"||
+               p.ghot_task_dispatched||p.separate_nm_property_identity_linked||
+               p.relatte_crossing_draft.requested_effect.vehicle_actuation)
+              process.exit(1);
+          '
+          if grep -Eq 'PRIVATE_PARENTS|PHOTO_TITLE_VIN|PRIVATE_BUS_NICKNAME' work/field-ship-003/synthetic-field-ship-003.json; then
+            echo "FAIL: private source text leaked" >&2
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: field-ship-003-synthetic-revival-witness
+          path: work/field-ship-003/synthetic-field-ship-003.json
+          retention-days: 7
+          if-no-files-found: error
