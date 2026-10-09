@@ -183,3 +183,87 @@ test("only desk-only proposals can make GHoT-shaped candidate tasks",()=>{
   c.activity="cleanup";
   assert.throws(()=>makePropertyDesktopStudyTask(c,at),/PROPERTY_DESK_ONLY/);
 });
+
+
+test("two asset categories produce separate evidence paths without assuming title or road use",()=>{
+  const vehicle=makePropertyCandidate("Vehicle A");
+  vehicle.asset_kind="vehicle";
+  vehicle.activity="vehicle-inspection";
+  const v=assessPropertyCandidate(vehicle,at);
+  assert.equal(v.review_packet_status,"HOLD");
+  assert.ok(v.required_topics.includes("vehicle_possession"));
+  assert.ok(v.required_topics.includes("parking_permission"));
+  assert.equal(v.required_topics.includes("land_title_chain"),false);
+  assert.equal(v.entry_authorized,false);
+  vehicle.activity="vehicle-relocation";
+  const movement=assessPropertyCandidate(vehicle,at);
+  assert.ok(movement.required_topics.includes("vehicle_title_record"));
+  assert.ok(movement.required_topics.includes("vehicle_insurance_scope"));
+  assert.ok(movement.required_topics.includes("vehicle_transport_plan"));
+  assert.ok(movement.required_topics.includes("vehicle_condition"));
+  assert.equal(movement.physical_work_authorized,false);
+  const land=makePropertyCandidate("Land B");
+  land.asset_kind="land";
+  land.activity="site-visit";
+  const l=assessPropertyCandidate(land,at);
+  assert.ok(l.required_topics.includes("land_access_basis"));
+  assert.ok(l.required_topics.includes("land_use_constraints"));
+  assert.equal(l.required_topics.includes("vehicle_registration"),false);
+  land.activity="land-title-research";
+  const search=assessPropertyCandidate(land,at);
+  assert.equal(search.review_packet_status,"DESK_STUDY_ONLY");
+  assert.equal(search.entry_authorized,false);
+});
+
+test("mobile bus insurance claim alone never makes vehicle movable or habitable",()=>{
+  let vehicle=makePropertyCandidate("Unnamed vehicle");
+  vehicle.asset_kind="vehicle";
+  vehicle.activity="vehicle-stationary-use";
+  vehicle=updateEvidence(vehicle,"vehicle_insurance_scope","claimed");
+  assert.equal(assessPropertyCandidate(vehicle,at).review_packet_status,"HOLD");
+  assert.ok(assessPropertyCandidate(vehicle,at).blocking_topics.includes("vehicle_insurance_scope"));
+  vehicle=updateEvidence(vehicle,"vehicle_insurance_scope","reviewed");
+  assert.equal(assessPropertyCandidate(vehicle,at).review_packet_status,"HOLD");
+  assert.ok(assessPropertyCandidate(vehicle,at).blocking_topics.includes("parking_permission"));
+  assert.equal(assessPropertyCandidate(vehicle,at).physical_work_authorized,false);
+});
+
+test("land without a located deed remains in HOLD for work despite a map assertion",()=>{
+  let parcel=makePropertyCandidate("Land candidate");
+  parcel.asset_kind="land";
+  parcel.activity="shared-resource";
+  parcel=updateEvidence(parcel,"land_access_basis","claimed");
+  assert.equal(assessPropertyCandidate(parcel,at).review_packet_status,"HOLD");
+  assert.ok(assessPropertyCandidate(parcel,at).blocking_topics.includes("land_title_chain"));
+  assert.ok(assessPropertyCandidate(parcel,at).blocking_topics.includes("land_access_basis"));
+  assert.equal(assessPropertyCandidate(parcel,at).legal_permission_proven_by_software,false);
+});
+
+test("public report excludes private asset type and private annotations",()=>{
+  const intake=makePropertyIntake();
+  intake.candidates[0].asset_kind="vehicle";
+  intake.candidates[0].activity="vehicle-inspection";
+  intake.candidates[0].private_notes="secret vehicle identification internal-only";
+  intake.candidates[1].asset_kind="land";
+  intake.candidates[1].activity="land-title-research";
+  intake.candidates[1].private_notes="secret survey reference internal-only";
+  const identity=createLandIdentity();
+  const report=makePropertyPublicReport({
+    intake,privacyKey:generatePropertyPrivacyKey(),identity,at,
+  });
+  assert.equal(verifyPropertyPublicReport(report,identity.publicKey),true);
+  const blob=JSON.stringify(report);
+  assert.equal(blob.includes("secret vehicle identification"),false);
+  assert.equal(blob.includes("secret survey reference"),false);
+  assert.equal(blob.includes('"asset_kind"'),false);
+});
+
+test("vehicle-only activities are refused for land and unclassified sites",()=>{
+  const land=makePropertyCandidate("Test");
+  land.asset_kind="land";
+  land.activity="vehicle-relocation";
+  assert.throws(()=>assessPropertyCandidate(land,at),/PROPERTY_ASSET_ACTIVITY_MISMATCH/);
+  const unspecified=makePropertyCandidate("Test");
+  unspecified.activity="vehicle-inspection";
+  assert.throws(()=>assessPropertyCandidate(unspecified,at),/PROPERTY_ASSET_ACTIVITY_MISMATCH/);
+});
