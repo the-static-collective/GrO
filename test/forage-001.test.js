@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {webcrypto} from "node:crypto";
+import {webcrypto, createHash} from "node:crypto";
 import {readFileSync} from "node:fs";
 import {act, resolveField} from "../src/field.js";
 import {projectHeldForageEncounter} from "../src/field-forage.js";
@@ -141,6 +141,34 @@ test("no proof laundering via photo role or apparent item owner", async () => {
   await assert.rejects(() => createHeldForageEncounter({
     ...args, lead:{...args.lead, entry_granted:true}
   }), /EXACT_FORAGE_001_LEAD_REQUIRED/);
+});
+
+test("mobile stable serializer is an exact mirror of native GrO engine", () => {
+  const upstream=readFileSync(new URL("../src/stable.js", import.meta.url));
+  const mirror=readFileSync(new URL("../apps/field-scout/stable.mjs", import.meta.url));
+  assert.deepEqual(mirror, upstream);
+});
+
+test("the upstream FORAGE-002 compiler remains source-pinned", () => {
+  // Github source blob SHA from static-os experimental FORAGE-002 PR #83.
+  const source=readFileSync(new URL("../apps/field-scout/scout-core.mjs", import.meta.url));
+  const nativeGitBlobSha=createHash("sha1")
+    .update(Buffer.from("blob "+source.length+"\\0"))
+    .update(source)
+    .digest("hex");
+  assert.equal(nativeGitBlobSha, "363c7127cb0405e32a86a58d79f6365151a1ed1d");
+});
+
+test("GrO app caches only first-party static assets, not photo capture or reports", () => {
+  const sw=readFileSync(new URL("../apps/field-scout/sw.js", import.meta.url), "utf8");
+  assert.match(sw, /gro-field-scout-shell-v1/);
+  assert.match(sw, /urls\.has\(new URL\(event\.request\.url\)\.href\)/);
+  assert.doesNotMatch(sw, /\.jpg|\.png|\.MP4|originalBytes|receipt\.json|localStorage/);
+  const manifest=JSON.parse(readFileSync(
+    new URL("../apps/field-scout/manifest.webmanifest", import.meta.url), "utf8"));
+  assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.scope, "./");
+  assert.equal(manifest.start_url, "./index.html");
 });
 
 test("phone HTML includes complete save trio, camera and no actual robot control", () => {
