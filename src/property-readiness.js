@@ -7,16 +7,52 @@ export const PROPERTY_PUBLIC_SCHEMA = "gro.property-002-redacted-report/v0";
 export const PROPERTY_TOPICS = Object.freeze([
   "authority", "steward_consent", "occupant_access", "activity_scope",
   "local_rules", "site_safety", "environmental_review", "permits_and_engineering",
+  "vehicle_title_record", "vehicle_possession", "vehicle_registration",
+  "vehicle_insurance_scope", "vehicle_transport_plan",
+  "vehicle_condition", "parking_permission",
+  "land_title_chain", "land_access_basis", "land_use_constraints",
 ]);
+export const PROPERTY_ASSET_KINDS = Object.freeze(["unclassified","vehicle","land"]);
 export const PROPERTY_ACTIVITIES = Object.freeze([
   "desk-study", "site-visit", "noninvasive-survey", "cleanup", "gardening",
   "fabrication", "solar-installation", "shared-resource",
+  "vehicle-inspection", "vehicle-relocation", "vehicle-stationary-use", "land-title-research",
 ]);
 const PRIVATE_KEYS = ["schema","candidates"];
-const CANDIDATE_KEYS = ["candidate_id","private_label","private_location","private_contact","private_notes","activity","evidence"];
+const CANDIDATE_KEYS = ["candidate_id","asset_kind","private_label","private_location","private_contact","private_notes","activity","evidence"];
 const EVIDENCE_KEYS = ["state","local_reference","reviewed_at","expires_at","revoked_at"];
 const REQUIRED_SITE = ["authority","steward_consent","occupant_access","activity_scope","local_rules","site_safety"];
 const EXTRA_FOR_PHYSICAL = ["environmental_review","permits_and_engineering"];
+const VEHICLE_SITE = ["vehicle_possession","vehicle_condition","parking_permission"];
+const LAND_SITE = ["land_access_basis","land_use_constraints"];
+const LAND_WORK = ["land_title_chain","land_access_basis","land_use_constraints"];
+const VEHICLE_MOVE = ["vehicle_title_record","vehicle_possession","vehicle_registration",
+  "vehicle_insurance_scope","vehicle_transport_plan","vehicle_condition","parking_permission"];
+const VEHICLE_USE = ["vehicle_possession","vehicle_insurance_scope",
+  "vehicle_condition","parking_permission","local_rules"];
+function requiredEvidence(candidate) {
+  if(["desk-study","land-title-research"].includes(candidate.activity)) return [];
+  const generic=["site-visit","noninvasive-survey","vehicle-inspection"].includes(candidate.activity)
+    ? REQUIRED_SITE : [...REQUIRED_SITE,...EXTRA_FOR_PHYSICAL];
+  if(candidate.asset_kind==="vehicle") {
+    const specifics=candidate.activity==="vehicle-relocation" ? VEHICLE_MOVE :
+      candidate.activity==="vehicle-stationary-use" ? VEHICLE_USE : VEHICLE_SITE;
+    return [...new Set([...generic,...specifics])];
+  }
+  if(candidate.asset_kind==="land") {
+    const specifics=["site-visit","noninvasive-survey"].includes(candidate.activity)
+      ? LAND_SITE : LAND_WORK;
+    return [...new Set([...generic,...specifics])];
+  }
+  return generic;
+}
+function compatibleAssetActivity(candidate) {
+  if(candidate.activity.startsWith("vehicle-") && candidate.asset_kind!=="vehicle")return false;
+  if(candidate.activity==="land-title-research" && candidate.asset_kind!=="land")return false;
+  if(candidate.asset_kind==="vehicle" &&
+     ["gardening","solar-installation"].includes(candidate.activity))return false;
+  return true;
+}
 
 const isObj = x => x!==null && typeof x==="object" && !Array.isArray(x);
 const exact = (obj,fields,why) => {
@@ -42,6 +78,7 @@ export function makePropertyCandidate(label="Site A") {
   }]));
   return {
     candidate_id:"property-candidate:"+randomBytes(16).toString("hex"),
+    asset_kind:"unclassified",
     private_label:label,
     private_location:"",
     private_contact:"",
@@ -72,6 +109,8 @@ export function validatePropertyIntake(intake) {
     if(![c.private_label,c.private_location,c.private_contact,c.private_notes].every(countOnly) ||
        !c.private_label.trim())throw new Error("PROPERTY_PRIVATE_TEXT_INVALID");
     if(!PROPERTY_ACTIVITIES.includes(c.activity))throw new Error("PROPERTY_UNKNOWN_ACTIVITY");
+    if(!PROPERTY_ASSET_KINDS.includes(c.asset_kind) || !compatibleAssetActivity(c))
+      throw new Error("PROPERTY_ASSET_ACTIVITY_MISMATCH");
     exact(c.evidence,PROPERTY_TOPICS,"PROPERTY_EVIDENCE_TOPICS");
     for(const topic of PROPERTY_TOPICS) {
       const e=c.evidence[topic];
@@ -100,10 +139,7 @@ export function assessPropertyCandidate(candidate,at) {
   // Validation deliberately uses a whole-envelope shape and never returns
   // a private field or copies location strings into assessment output.
   validatePropertyIntake({schema:PROPERTY_PRIVATE_SCHEMA,candidates:[candidate]});
-  const needed=candidate.activity==="desk-study" ? [] :
-    ["site-visit","noninvasive-survey"].includes(candidate.activity)
-      ? REQUIRED_SITE
-      : [...REQUIRED_SITE,...EXTRA_FOR_PHYSICAL];
+  const needed=requiredEvidence(candidate);
   const blockers=[];
   const evidenceCounts={missing:0,claimed:0,reviewed:0,expired:0,revoked:0};
   for(const topic of PROPERTY_TOPICS) {
@@ -122,6 +158,7 @@ export function assessPropertyCandidate(candidate,at) {
     schema:"gro.property-002-readiness/v0",
     candidate_id:candidate.candidate_id,
     activity:candidate.activity,
+    asset_kind:candidate.asset_kind,
     reviewed_at:at,
     required_topics:[...needed],
     evidence_counts:evidenceCounts,
@@ -280,4 +317,25 @@ export function makePropertyDesktopStudyTask(candidate,at) {
   };
   return {...core,task_id:"gro-property-task:"+createHash("sha256")
     .update("GrO-Property002-GhotTask-v0|"+stableStringify(core)).digest("hex")};
+}
+
+/** Returns a generic, local checklist without addresses or identification. */
+export function makePropertyAssetPlan(candidate,at) {
+  const assessment=assessPropertyCandidate(candidate,at);
+  return {
+    schema:"gro.property-002-type-plan/v0",
+    candidate_id:assessment.candidate_id,
+    asset_kind:candidate.asset_kind,
+    requested_activity:candidate.activity,
+    evidence_to_review:[...assessment.required_topics],
+    blocking_topics:[...assessment.blocking_topics],
+    next_action:
+      candidate.asset_kind==="vehicle"
+        ? "Independently review title, insurance use, condition, parking and any transport method."
+        : candidate.asset_kind==="land"
+          ? "Independently locate current title/chain, verify rights, access and local land-use rules."
+          : "Classify the candidate before proposing any physical action.",
+    source_documents_confirmed_by_software:false,
+    authority_granted:false,entry_authorized:false,physical_work_authorized:false,
+  };
 }
