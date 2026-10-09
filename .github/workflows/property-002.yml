@@ -39,6 +39,10 @@ jobs:
           PRIVATE="$RUNNER_TEMP/gro-property002-secret-fixture"
           echo "GRO_PROPERTY_TEST_PRIVATE=$PRIVATE" >> "$GITHUB_ENV"
           node scripts/property-002-local.mjs init "$PRIVATE"
+          ID_A="$(node -e 'const fs=require("fs"),v=JSON.parse(fs.readFileSync(process.argv[1]));process.stdout.write(v.candidates[0].candidate_id)' "$PRIVATE/intake.private.json")"
+          ID_B="$(node -e 'const fs=require("fs"),v=JSON.parse(fs.readFileSync(process.argv[1]));process.stdout.write(v.candidates[1].candidate_id)' "$PRIVATE/intake.private.json")"
+          node scripts/property-002-local.mjs classify "$PRIVATE" "$ID_A" vehicle vehicle-inspection > "$RUNNER_TEMP/property002-private-a.json"
+          node scripts/property-002-local.mjs classify "$PRIVATE" "$ID_B" land land-title-research > "$RUNNER_TEMP/property002-private-b.json"
           node -e '
             const f=require("fs"),p=process.argv[1];
             const a=JSON.parse(f.readFileSync(p));
