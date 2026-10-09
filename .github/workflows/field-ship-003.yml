@@ -4,14 +4,18 @@ on:
   push:
     paths:
       - "src/field-ship.js"
+      - "src/field-ship-ecm.js"
       - "test/field-ship.test.js"
+      - "test/field-ship-ecm.test.js"
       - "examples/field-ship-003.mjs"
       - "docs/FIELD-SHIP-003.md"
       - ".github/workflows/field-ship-003.yml"
   pull_request:
     paths:
       - "src/field-ship.js"
+      - "src/field-ship-ecm.js"
       - "test/field-ship.test.js"
+      - "test/field-ship-ecm.test.js"
       - "examples/field-ship-003.mjs"
       - "docs/FIELD-SHIP-003.md"
       - ".github/workflows/field-ship-003.yml"
@@ -31,7 +35,7 @@ jobs:
         with:
           node-version: "22"
       - name: Run adversarial ship and hangar tests
-        run: node --test test/field-ship.test.js
+        run: node --test test/field-ship.test.js test/field-ship-ecm.test.js
       - name: Prepare a synthetic mobile revival packet
         run: |
           node examples/field-ship-003.mjs work/field-ship-003 | tee /tmp/field-ship-003-output.json
