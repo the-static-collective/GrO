@@ -168,3 +168,20 @@ test("unclassified land assets and invalid mode cannot become a road-going ship"
   assert.throws(()=>assessFieldShip({...f,vehicle:inspect,transportMode:"self-propelled"}),
     /FIELD_SHIP_MOVE_REQUIRES_RELOCATION_REVIEW/);
 });
+
+test("participant-reported separate property remains distinct without importing land or vehicle rights",()=>{
+  const f=fixture();
+  f.base=makeStagingBase({relationToOtherLandCandidate:"participant-reported-distinct"});
+  const result=assessFieldShip({...f,transportMode:"undecided"});
+  assert.equal(result.other_land_candidate_relation,"participant-reported-distinct");
+  assert.equal(result.other_land_candidate_linked,false);
+  assert.equal(result.other_land_distinctness_independently_verified,false);
+  assert.equal(result.vehicle_operation_authorized,false);
+  assert.equal(result.house_utility_connection_authorized,false);
+  const changed=structuredClone(f);
+  changed.base.relation_to_other_land_candidate="same-property-proven";
+  assert.throws(()=>assessFieldShip({...changed,transportMode:"undecided"}),
+    /FIELD_SHIP_BASE_CANNOT_MINT_RIGHTS/);
+  assert.throws(()=>makeStagingBase({relationToOtherLandCandidate:"same-property-proven"}),
+    /FIELD_SHIP_INVALID_LAND_RELATION/);
+});
