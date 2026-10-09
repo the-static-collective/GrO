@@ -137,3 +137,14 @@ node scripts/property-002-local.mjs audit /absolute/private/off-repo/path
 
 A separately approved redacted report may later be created and signed, but
 **no real candidate data is used in repository tests or published by default**.
+
+## FIELD-SHIP-003 — Mobile Revival
+
+GrO now has an experimental [Static Field Ship mobile-revival plan](docs/FIELD-SHIP-003.md). It models a proposed mobile vehicle and an independent land/house staging base, mechanical condition reviews, professional-tow versus self-propelled road-move decisions, and non-executing GHoT/reLATTE proposals.
+
+It **does not** authorize starting, repairing, towing or driving any vehicle; it does not grant permission to use house utilities or enter any property. In tests, even a fictional completed evidence packet is only ready for a separate qualified human decision.
+
+```bash
+node --test test/field-ship.test.js
+node examples/field-ship-003.mjs
+```
