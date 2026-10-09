@@ -399,3 +399,56 @@ export function composeNeighboringSites({left,right}) {
   };
   return {...body,composition_id:"gro-neighbor:"+digest(ADDRESS_DOMAIN,body)};
 }
+
+/**
+ * Compatible with GHoT schemas/task.v0.json. This is merely an opt-in task
+ * candidate; no GHoT executor, site access, actuation or money is selected.
+ */
+export function makeGhotLandSimulationTask({
+  site,proposal,registry,disposition,requesterNodeId,createdAt,
+}) {
+  if(!verifyLandDisposition({site,proposal,registry,disposition}) ||
+      disposition.body.decision!=="SIMULATED_GRANT")
+    throw new Error("LAND_SIMULATED_DISPOSITION_REQUIRED_FOR_GHOT");
+  txt(requesterNodeId,"LAND_GHOT_REQUESTER_REQUIRED");
+  iso(createdAt);
+  if(Date.parse(createdAt)<Date.parse(disposition.body.valid_from) ||
+     Date.parse(createdAt)>=Date.parse(disposition.body.expires_at))
+    throw new Error("LAND_GHOT_TASK_OUTSIDE_SIMULATION_SCOPE");
+  const input={
+    schema:"gro.land-ghot-study-input/v0",
+    site_id:site.site_id,
+    site_address_status:"sketch-not-cadastral",
+    proposal_id:proposal.event_id,
+    disposition_id:disposition.event_id,
+    action_kind:proposal.body.action.kind,
+    study_question:proposal.body.action.description,
+    observations:structuredClone(proposal.body.observations),
+    simulation_only:true,
+    physical_work_proven:false,
+    real_estate_permission:false,
+  };
+  const core={
+    kind:"ghot.task",
+    version:"0",
+    capability:"gro.land.simulation-study.v0",
+    created_at:createdAt,
+    requester_node_id:requesterNodeId,
+    input,
+    constraints:{
+      execute_only_after_owner_selection:true,
+      requires_installed_declared_capability:true,
+      network:false,
+      arbitrary_shell:false,
+      physical_actuation:false,
+      property_entry:false,
+      permit_inheritance:false,
+      no_payment_or_valuation:true,
+      deadline:disposition.body.expires_at,
+    },
+  };
+  return {
+    ...core,
+    task_id:"gro-ghot-land-task:"+digest(ADDRESS_DOMAIN,core),
+  };
+}
