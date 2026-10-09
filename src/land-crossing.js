@@ -97,7 +97,7 @@ export function signLandEvent({kind,body,identity}) {
     createPublicKey(identity.privateKey).export({format:"der",type:"spki"}).toString("base64url"):null;
   if(publicKey!==identity.publicKey)throw new Error("LAND_KEY_MISMATCH");
   const unsigned={schema:LAND_SCHEMA,kind,body:structuredClone(body)};
-  const event_id="gro-land-event:"+digest(ADDRESS_DOMAIN,unsigned);
+  const event_id="gro-land-event:"+digest(ADDRESS_DOMAIN,{...unsigned,signer_public_key:publicKey});
   const signature=sign(null,Buffer.from(ENVELOPE_DOMAIN+stableStringify({...unsigned,event_id})),identity.privateKey)
     .toString("base64url");
   return {...unsigned,event_id,signing:{
@@ -115,7 +115,7 @@ export function verifyLandEvent(event,{kind,pinnedKey}={}) {
     const sig=Buffer.from(event.signing.signature,"base64url");
     if(sig.length!==64 || sig.toString("base64url")!==event.signing.signature)return false;
     const unsigned={schema:event.schema,kind:event.kind,body:event.body};
-    if(event.event_id!=="gro-land-event:"+digest(ADDRESS_DOMAIN,unsigned))return false;
+    if(event.event_id!=="gro-land-event:"+digest(ADDRESS_DOMAIN,{...unsigned,signer_public_key:event.signing.public_key}))return false;
     return verify(null,
       Buffer.from(ENVELOPE_DOMAIN+stableStringify({...unsigned,event_id:event.event_id})),
       publicKey,sig);
