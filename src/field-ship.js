@@ -61,11 +61,13 @@ function assessOne(v,at) {
   if(v.state==="reviewed" && time(v.reviewed_at)>time(at))return "claimed";
   return v.state;
 }
-export function makeStagingBase(){
+export function makeStagingBase({relationToOtherLandCandidate="unresolved"}={}){
+  if(!["unresolved","participant-reported-distinct"].includes(relationToOtherLandCandidate))
+    throw new Error("FIELD_SHIP_INVALID_LAND_RELATION");
   return {
     schema:"gro.field-ship-staging-base/v0",
     base_id:"staging-base:"+randomBytes(16).toString("hex"),
-    relation_to_other_land_candidate:"unresolved",
+    relation_to_other_land_candidate:relationToOtherLandCandidate,
     permission_reviews:Object.fromEntries(
       SHIP_STAGING_PERMISSIONS.map(k=>[k,blankShipEvidence()]),
     ),
@@ -82,7 +84,7 @@ function checkBase(base){
     "title_to_vehicle_claimed","vehicle_movement_authorized","house_utilities_authorized"],
   "FIELD_SHIP_BASE_FIELDS");
   if(base.schema!=="gro.field-ship-staging-base/v0"||!BASE_ID.test(base.base_id)||
-     base.relation_to_other_land_candidate!=="unresolved" ||
+     !["unresolved","participant-reported-distinct"].includes(base.relation_to_other_land_candidate) ||
      base.title_to_vehicle_claimed!==false ||
      base.vehicle_movement_authorized!==false ||
      base.house_utilities_authorized!==false)
@@ -125,6 +127,8 @@ export function assessFieldShip({vehicle,base,checks,transportMode="undecided",a
     vehicle_candidate_id:vehicle.candidate_id,
     staging_base_id:base.base_id,
     other_land_candidate_linked:false,
+    other_land_candidate_relation:base.relation_to_other_land_candidate,
+    other_land_distinctness_independently_verified:false,
     transport_mode:transportMode,
     reviewed_at:at,
     documentary_blockers:docs,
