@@ -107,3 +107,19 @@ NEW AFFORDANCE
 ### TENET 011 — Recombination Without Collapse
 
 > Two locally admitted, simultaneously eligible fork branches may become explicit parents of a fresh descendant W without canonicalizing, erasing, or inheriting authority from either parent.
+
+## Phone field encounters — GrO FORAGE-001
+
+The first phone-oriented GrO interface is the
+[WALL-E Field Scout](apps/field-scout/index.html). It lets a person photograph
+a salvage-looking or naturally occurring material candidate, report its
+source/land context, describe known hazards, and export the matching Static OS
+FORAGE-001 lead, SHA-256 photo evidence and an **actor-local GrO HOLD**.
+
+The GrO encounter is not a permit, property transfer, public field trace or
+robot-pickup command. `src/field-forage.js` projects the received record as an
+*encounter*, never a pickup action. See
+[GrO FORAGE-001 operating guide](docs/FORAGE-001-WALLE-PHONE.md).
+The mobile interface requires an HTTPS host before it can be opened from a
+phone; code in GitHub is not a live deployment.
+
