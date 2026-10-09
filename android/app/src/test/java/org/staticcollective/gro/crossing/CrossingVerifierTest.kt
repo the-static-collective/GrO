@@ -64,6 +64,14 @@ class CrossingVerifierTest {
         return body.toString().toByteArray(StandardCharsets.UTF_8)
     }
 
+    @Test fun nodeGeneratedRelatteFixtureVerifiesOnAndroid() {
+        val stream = javaClass.classLoader!!.getResourceAsStream("phone-crossing.json")
+            ?: throw AssertionError("Generate the cross-runtime fixture before Gradle tests")
+        val bytes=stream.use {it.readBytes()}
+        val checked=CrossingVerifier.verify(bytes)
+        assertTrue(checked.crossingId.startsWith("relatte-crossing-v0:"))
+    }
+
     @Test fun validSignedCrossingIsVerifiedOnPhone() {
         val fixture=signedFixture()
         val verified=CrossingVerifier.verify(fixture)
