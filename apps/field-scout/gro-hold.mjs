@@ -1,7 +1,7 @@
 // GrO local HOLD bridge. Browser-safe, signed nowhere, moves no equipment.
 // Source photo and exact FORAGE-001 lead are rechecked before any local encounter.
 // This is a SHA-addressed *unverified observation*, NOT a reLATTE admission.
-import {stableStringify} from "../../src/stable.js";
+import {stableStringify} from "./stable.mjs";
 import {affordancesFor, buildLead, photoEvidence} from "./scout-core.mjs";
 
 export const SCHEMA = "gro.local-held-forage-encounter.v0";
