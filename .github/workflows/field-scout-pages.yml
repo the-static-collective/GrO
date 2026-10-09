@@ -1,0 +1,54 @@
+name: GrO phone Field Scout — guarded GitHub Pages deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/field-scout/**"
+      - "src/stable.js"
+      - "test/forage-001.test.js"
+      - ".github/workflows/field-scout-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gro-field-scout-pages
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test test/forage-001.test.js
+      - name: Verify HTML/JS are syntactically sound
+        run: |
+          node --check apps/field-scout/app.mjs
+          node --check apps/field-scout/gro-hold.mjs
+          node --check apps/field-scout/scout-core.mjs
+          node --check apps/field-scout/sw.js
+
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/field-scout
+      - id: deployment
+        uses: actions/deploy-pages@v4
