@@ -137,7 +137,7 @@ test("no proof laundering via photo role or apparent item owner", async () => {
   }), /ORIGINAL_PHOTO_AND_EVIDENCE_DO_NOT_MATCH/);
   await assert.rejects(() => createHeldForageEncounter({
     ...args, lead:{...args.lead, operator_claim_of_ownership:true}
-  }), /INVALID_LEAD_OR_UNEARNED_OWNERSHIP/);
+  }), /FORAGE_001_LEAD_CHANGED_OR_AUTHORITY_LAUNDERED/);
   await assert.rejects(() => createHeldForageEncounter({
     ...args, lead:{...args.lead, entry_granted:true}
   }), /EXACT_FORAGE_001_LEAD_REQUIRED/);
