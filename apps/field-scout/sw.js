@@ -3,7 +3,8 @@ const NAME = "gro-field-scout-shell-v1";
 const ASSETS = [
   "./", "./index.html", "./style.css", "./app.mjs",
   "./scout-core.mjs", "./gro-hold.mjs", "./stable.mjs",
-  "./manifest.webmanifest", "./gro-mark.svg"
+  "./manifest.webmanifest", "./gro-mark.svg",
+  "./glean.html", "./glean-ui.mjs", "./glean-quest.mjs", "./glean-example.json"
 ];
 const urls = new Set(ASSETS.map(path => new URL(path, self.registration.scope).href));
 self.addEventListener("install", event => {
