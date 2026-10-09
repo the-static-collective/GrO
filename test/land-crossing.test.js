@@ -135,11 +135,21 @@ test("LAND-001 a short scoped grant permits only a separate simulated consequenc
   const projection=projectLandSite({
     site:f.site,proposals:[f.proposal],
     registry:f.registry,dispositions:[f.disposition],consequences:[consequence],
+    witnessPins:{'actor:observer':f.observer.publicKey},
   });
   assert.equal(projection.opportunities[0].status,"SIMULATED_GRANT");
   assert.deepEqual(projection.opportunities[0].simulated_consequence_ids,[consequence.event_id]);
   assert.equal(projection.physical_site_access,false);
   assert.equal(projection.ownership_verified,false);
+  assert.throws(()=>projectLandSite({
+    site:f.site,proposals:[f.proposal],registry:f.registry,
+    dispositions:[f.disposition],consequences:[consequence],
+  }),/LAND_UNVERIFIED_CONSEQUENCE/);
+  assert.throws(()=>projectLandSite({
+    site:f.site,proposals:[f.proposal],registry:f.registry,
+    dispositions:[f.disposition],consequences:[consequence,consequence],
+    witnessPins:{'actor:observer':f.observer.publicKey},
+  }),/LAND_GRANT_ALREADY_OBSERVED_IN_PROJECTION/);
   assert.throws(()=>recordSimulatedConsequence({
     ...f,observerIdentity:f.observer,observerId:"actor:observer",
     at:t(20),detail:"expired",
@@ -162,6 +172,7 @@ test("LAND-001 two sites can independently simulate cooperation without easement
   assert.equal(combo.legal_easement_created,false);
   assert.equal(combo.utility_interconnection_granted,false);
   assert.equal(combo.owner_rights_transferred,false);
+  assert.equal(combo.cadastral_adjacency_verified,false);
   assert.notEqual(a.registry.pinned_public_key,b.registry.pinned_public_key);
   assert.throws(()=>composeNeighboringSites({left:a,right:a}),
     /LAND_NOT_INDEPENDENT_SITES/);
@@ -191,7 +202,7 @@ test("LAND-001 signatures establish attributable statements only, never title",(
     kind:"SITE_USE_PROPOSAL",body:f.proposal.body,identity:f.steward,
   });
   assert.equal(verifyLandProposal(f.site,impostor,{pinnedProposerKey:f.proposer.publicKey}),false);
-  assert.notEqual(f.proposal.event_id,impostor.event_id); // content ID includes only unsigned body, not signer -- check
+  assert.notEqual(f.proposal.event_id,impostor.event_id); // signer identity is part of the addressed event
 });
 
 test("LAND-001 a place with no steward still offers proposals without access",()=>{
