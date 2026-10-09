@@ -17,10 +17,12 @@ Static Field Ship), not an indefinitely stationary workshop.
    to its separate lawful steward(s) and occupants. Land ownership does
    not itself establish consent for repairs, electrical work, use of the
    house, or vehicle departure.
-3. **Other land candidate:** an independently described site that may
-   later be linked. The code deliberately records
-   `relation_to_other_land_candidate: "unresolved"`. It does not
-   assume any other property is the hangar.
+3. **Other land candidate:** a **separate** site from the current
+   hangar, as reported by the participant. The code can preserve
+   `relation_to_other_land_candidate: "participant-reported-distinct"`.
+   This is a factual input for planning, **not independently verified**
+   geometry, ownership, consent or documentary evidence. There is no
+   automatic link to that land's private candidate ID.
 
 The **only** current real-world inputs from conversation are a user
 description of a broken-down bus, an image of an older vehicle title,
