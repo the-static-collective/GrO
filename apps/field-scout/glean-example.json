@@ -1,0 +1,23 @@
+{
+  "schema": "static-os.glean-offer/v0",
+  "offer_ref": "specimen:orchard-glean-offer-001",
+  "site_ref": "specimen:orchard-site-unverified",
+  "steward_ref": "specimen:steward-unverified",
+  "owner_claim_ref": "specimen:owner-unverified",
+  "material_ref": "specimen:apples-surplus",
+  "material_type": "AGRICULTURAL_CROP",
+  "description": "Synthetic example of donated apples remaining after a primary orchard harvest",
+  "source_status": "AFTER_PRIMARY_HARVEST",
+  "purpose": "FREE_DISTRIBUTION",
+  "intended_recipient_ref": "specimen:food-pantry-unverified",
+  "quantity": {
+    "amount": 10,
+    "unit": "POUND"
+  },
+  "valid_from": "2026-10-09",
+  "valid_until": "2026-10-19",
+  "donation_evidence_ref": "specimen:donation-note-unverified",
+  "owner_donation_asserted": true,
+  "hazards": [],
+  "offer_is_authenticated_by_software": false
+}

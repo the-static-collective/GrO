@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#293329">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; worker-src 'self'; manifest-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<title>GLEAN-001 · GrO Remainder Quest</title>
+<link rel="stylesheet" href="./style.css"><script type="module" src="./glean-ui.mjs"></script>
+<link rel="manifest" href="./manifest.webmanifest">
+</head><body>
+<header class="banner"><div class="kicker">GrO / GLEAN-001</div>
+<h1>THE REMAINDER<span class="cursor">_</span></h1>
+<p>Someone leaves something available. You may notice the invitation. <strong>Nothing here grants access or collection rights.</strong></p>
+<p><a href="./index.html">Back to Field Scout</a></p></header>
+<main>
+<section>
+<div class="state"><span class="dot"></span><strong>HOLD</strong> · steward claim unverified · no collection</div>
+<h2>01 / Encounter a steward's offer</h2>
+<p class="fine">Select a GLEAN-001 JSON offer supplied by its steward. This page checks the stated contract, not the owner's identity, title or consent. A <a href="./glean-example.json" download>synthetic orchard example</a> is included for demonstration.</p>
+<label for="offer">GLEAN-001 steward offer JSON</label>
+<input type="file" id="offer" accept=".json,application/json">
+<label for="actor">Your local quest actor reference (not authenticated)</label>
+<input type="text" id="actor" value="actor:local-glean-explorer" maxlength="120">
+<div id="preview" class="result" hidden>
+<strong>UNVERIFIED GLEAN ENCOUNTER</strong>
+<p id="summary" class="fine"></p>
+<p class="fine">This offer and its place/recipient details remain on your device. Do not post the original source publicly without permission.</p>
+</div>
+<button type="button" class="primary" id="hold">Hold a possible quest</button>
+<p id="message" role="status"></p>
+<div id="complete" class="result" hidden>
+<h3>LOCALLY HELD · NOT PICKED UP</h3>
+<p id="fingerprint" class="fine"></p>
+<button type="button" id="save">Save GrO glean-held quest JSON</button>
+<p class="fine">Next: use GLEAN-001 for independent permission checks. A future WEBZ postcard can advertise a limited invitation without disclosing the source address. No physical inventory, food safety certification or robot action is generated.</p>
+</div>
+</section>
+<footer>REMAINDER ≠ ABANDONED · OFFER ≠ VERIFIED GRANT · QUEST ≠ COLLECTION</footer>
+</main>
+</body></html>
