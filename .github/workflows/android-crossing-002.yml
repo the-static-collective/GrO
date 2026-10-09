@@ -42,6 +42,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.13"
+      - name: Generate portable Node-to-Android signed crossing fixture
+        run: |
+          mkdir -p android/app/src/test/resources
+          node examples/phone-crossing-002.mjs > android/app/src/test/resources/phone-crossing.json
       - name: Compile debug APK and run JVM verifier checks
         working-directory: android
         run: gradle --no-daemon --stacktrace :app:assembleDebug :app:testDebugUnitTest
