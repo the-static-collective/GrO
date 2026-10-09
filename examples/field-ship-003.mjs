@@ -23,7 +23,7 @@ bus.evidence.vehicle_insurance_scope={
   state:"claimed",local_reference:"private:mock-rv-policy-claim",
   reviewed_at:null,expires_at:null,revoked_at:null,
 };
-const hangar=makeStagingBase(),checks=makeFieldShipChecklist();
+const hangar=makeStagingBase({relationToOtherLandCandidate:"participant-reported-distinct"}),checks=makeFieldShipChecklist();
 const inspection=assessFieldShip({
   vehicle:bus,base:hangar,checks,transportMode:"undecided",at:now,
 });
@@ -51,6 +51,8 @@ const publicRecord={
   ship_candidate_id:bus.candidate_id,
   staging_base_id:hangar.base_id,
   separate_nm_property_identity_linked:false,
+  other_land_candidate_relation:hangar.relation_to_other_land_candidate,
+  separate_land_claim_independently_verified:false,
   inspect:inspection,
   drive,professional_tow:tow,
   ghot_task_candidate:work,
