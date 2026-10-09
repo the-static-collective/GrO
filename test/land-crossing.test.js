@@ -7,6 +7,7 @@ import {
   registerSimulatedSiteSteward, decideLandProposal, verifyLandDisposition,
   recordSimulatedConsequence, verifySimulatedConsequence,
   projectLandSite, composeNeighboringSites, signLandEvent, verifyLandEvent,
+  makeGhotLandSimulationTask,
 } from "../src/land-crossing.js";
 
 const t=(sec)=>new Date(Date.UTC(2026,9,9,19,0,sec)).toISOString();
@@ -211,4 +212,28 @@ test("LAND-001 a place with no steward still offers proposals without access",()
   assert.equal(field.opportunities[0].status,"UNDECIDED");
   assert.equal(field.opportunities[0].entry_authorized,false);
   assert.equal(field.opportunities[0].real_world_work_authorized,false);
+});
+
+test("LAND-001 proposed work composes to GHoT task.v0 without granting physical effects",()=>{
+  const f=environment();
+  const task=makeGhotLandSimulationTask({
+    ...f,requesterNodeId:"static-computer:desk-demo",createdAt:t(4),
+  });
+  assert.equal(task.kind,"ghot.task");
+  assert.equal(task.version,"0");
+  assert.equal(task.capability,"gro.land.simulation-study.v0");
+  assert.match(task.task_id,/^gro-ghot-land-task:[0-9a-f]{64}$/);
+  assert.equal(task.input.simulation_only,true);
+  assert.equal(task.input.real_estate_permission,false);
+  assert.equal(task.constraints.requires_installed_declared_capability,true);
+  assert.equal(task.constraints.physical_actuation,false);
+  assert.equal(task.constraints.property_entry,false);
+  const held=decideLandProposal({...f,decision:"HOLD",at:t(2),
+    validFrom:t(3),expiresAt:t(20),identity:f.steward});
+  assert.throws(()=>makeGhotLandSimulationTask({
+    ...f,disposition:held,requesterNodeId:"static-computer:desk-demo",createdAt:t(4),
+  }),/LAND_SIMULATED_DISPOSITION_REQUIRED_FOR_GHOT/);
+  assert.throws(()=>makeGhotLandSimulationTask({
+    ...f,requesterNodeId:"static-computer:desk-demo",createdAt:t(20),
+  }),/LAND_GHOT_TASK_OUTSIDE_SIMULATION_SCOPE/);
 });
