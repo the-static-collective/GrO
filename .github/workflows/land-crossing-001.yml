@@ -1,0 +1,57 @@
+name: LAND-CROSSING-001 The Plot Thickens
+
+on:
+  push:
+    paths:
+      - "src/land-crossing.js"
+      - "test/land-crossing.test.js"
+      - "examples/land-crossing-001.js"
+      - "scripts/verify-land-crossing-001.mjs"
+      - ".github/workflows/land-crossing-001.yml"
+  pull_request:
+    paths:
+      - "src/land-crossing.js"
+      - "test/land-crossing.test.js"
+      - "examples/land-crossing-001.js"
+      - "scripts/verify-land-crossing-001.mjs"
+      - ".github/workflows/land-crossing-001.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test adversarial land and stewardship limits
+        run: node --test test/land-crossing.test.js
+      - name: Simulate two fictional sites and export only public witness records
+        run: node examples/land-crossing-001.js work/land-001
+      - name: Cold-verify independent steward signatures, scope, GHoT task and source proposal
+        shell: bash
+        run: |
+          set -euo pipefail
+          W=work/land-001/land-crossing-001-witness.json
+          readarray -t PINS < <(node -e 'const f=require("fs");const w=JSON.parse(f.readFileSync(process.argv[1]));for(const p of [w.pubkey_fingerprints.orchard_steward,w.pubkey_fingerprints.workshop_steward,w.pubkey_fingerprints.orchard_witness])console.log(p)' "$W")
+          node scripts/verify-land-crossing-001.mjs "$W" "${PINS[0]}" "${PINS[1]}" "${PINS[2]}"
+          # A forged *public property-rights* claim must not verify, even when
+          # the remainder of the signatures and metadata still match.
+          node -e 'const f=require("fs");const p=process.argv[1],w=JSON.parse(f.readFileSync(p));w.sites[0].ownership_claimed=true;f.writeFileSync("work/land-001/forged.json",JSON.stringify(w))' "$W"
+          if node scripts/verify-land-crossing-001.mjs work/land-001/forged.json "${PINS[0]}" "${PINS[1]}" "${PINS[2]}"; then
+            echo "FAIL: forged land-owner claim was accepted" >&2
+            exit 1
+          fi
+          rm -f work/land-001/forged.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: land-crossing-001-public-witness
+          path: work/land-001/land-crossing-001-witness.json
+          retention-days: 7
+          if-no-files-found: error

@@ -107,3 +107,16 @@ NEW AFFORDANCE
 ### TENET 011 — Recombination Without Collapse
 
 > Two locally admitted, simultaneously eligible fork branches may become explicit parents of a fresh descendant W without canonicalizing, erasing, or inheriting authority from either parent.
+
+## LAND-CROSSING-001 — The Plot Thickens (draft experiment)
+
+[The Plot Thickens](docs/LAND-CROSSING-001-THE-PLOT-THICKENS.md) introduces GrO's first addressable **land-site simulation**: a GeoJSON-like site sketch, signed proposed uses, a separately pinned *simulation-only* local steward decision, witnessed simulated consequence, GHoT-compatible desktop-study task candidate and independently consented two-site composition.
+
+**No sketch, map, proposal, steward signature, witness, GHoT task or reLATTE donor draft demonstrates real land title, legal access, an easement or permission to do physical work.** Both plots in the runnable fixture are fictional.
+
+```bash
+node --test test/land-crossing.test.js
+node examples/land-crossing-001.js
+```
+
+This experiment does not change the existing GrO world/tenet rules and does not grant anyone new physical or digital execution authority.
