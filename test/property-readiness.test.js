@@ -90,6 +90,19 @@ test("missing, self-claimed, revoked and expired review evidence all HOLD a visi
   assert.ok(assessPropertyCandidate(revoked,at).blocking_topics.includes("steward_consent"));
 });
 
+test("future-dated reviews cannot satisfy present permission-preparation gates",()=>{
+  let c=makePropertyCandidate("Site A");
+  c.activity="site-visit";
+  c=withReviewedTopics(c,[
+    "authority","steward_consent","occupant_access","activity_scope","local_rules","site_safety",
+  ]);
+  c.evidence.authority.reviewed_at=later;
+  const assessment=assessPropertyCandidate(c,at);
+  assert.equal(assessment.review_packet_status,"HOLD");
+  assert.ok(assessment.blocking_topics.includes("authority"));
+  assert.equal(assessment.entry_authorized,false);
+});
+
 test("ready packet never means permission even if every evidence topic says reviewed",()=>{
   let c=makePropertyCandidate("Site A");
   c.activity="fabrication";
