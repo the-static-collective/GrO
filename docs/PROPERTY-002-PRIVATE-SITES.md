@@ -6,6 +6,59 @@
 coordinates, ownership records, or actual permission grants are committed to GitHub.
 No real property, resident, owner, or public record has been searched or verified.
 
+## Two distinct asset categories: a vehicle and a land site
+
+This preparation path now accepts a generic `asset_kind` of `vehicle`,
+`land`, or `unclassified`. A real vehicle title, insurance policy,
+parking arrangement or land deed is **never** copied into GitHub.
+
+**Vehicle route:** a vehicle may be parked, stored or driven/towed under
+very different sets of permissions. `vehicle_title_record`,
+`vehicle_possession`, `vehicle_registration`,
+`vehicle_insurance_scope`, `vehicle_transport_plan`,
+`vehicle_condition`, and `parking_permission` are separate evidence
+questions. A motor-vehicle title can indicate a recorded owner and
+vehicle description; it does not itself verify that the vehicle is
+currently insured for a particular RV use, operable, registered, road-legal,
+safe to occupy, or lawfully parked. The `vehicle-relocation` action is
+only a *review category*, not a permit to tow or drive anything.
+
+**Land route:** `land_title_chain`, `land_access_basis`, and
+`land_use_constraints` are separate. A deed that has not been found
+is simply **not yet located**, not proof that legal title exists or
+does not exist. A county assessor's parcel record or online tax map
+is a starting reference, not an automatic deed, consent or easement.
+Desktop-only deed research may be planned without entering a property.
+
+Both assets can eventually be parts of a proposed shared-resource system,
+but a vehicle's ownership/possession does **not** grant any right to
+park or live on land, and land control does **not** establish title
+to a vehicle.
+
+The local intake generator still starts with two deliberately
+`unclassified` candidates. To classify them **locally**, obtain the
+opaque candidate IDs from `init` (never copy identifying private
+fields into command arguments), then run:
+
+```bash
+node scripts/property-002-local.mjs classify \
+  /absolute/private/location/gro-sites \
+  property-candidate:YOUR_FIRST_ID \
+  vehicle vehicle-inspection
+
+node scripts/property-002-local.mjs classify \
+  /absolute/private/location/gro-sites \
+  property-candidate:YOUR_SECOND_ID \
+  land land-title-research
+
+node scripts/property-002-local.mjs audit \
+  /absolute/private/location/gro-sites
+```
+
+This saves types and local checklist needs in the private intake.
+No network call, external ownership verification, automatic document
+upload, or physical permission is triggered.
+
 ## The smallest field preparation
 
 Use a local directory **outside the Git checkout**. The CLI refuses relative
@@ -46,9 +99,11 @@ Each candidate contains these editable private fields:
 | `activity` | Desired preliminary action, e.g., desk-study, visit, cleanup, fabrication |
 | `evidence` | Independent factual/evidentiary review topics below |
 
-The eight evidence categories are **authority**, **steward consent**,
+The core evidence categories are **authority**, **steward consent**,
 **occupant access**, **activity scope**, **local rules**, **site safety**,
-**environmental review**, and **permits and engineering**.
+**environmental review**, and **permits and engineering**. Additional
+vehicle- and land-specific categories are listed above. The particular
+requirements depend on the candidate's private asset type and activity.
 
 Each category records `state` (`missing`, `claimed`, or `reviewed`);
 a *private* local evidence reference; review timestamp; optional expiry;
