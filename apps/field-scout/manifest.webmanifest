@@ -1,0 +1,19 @@
+{
+  "name": "GrO — WALL-E Field Scout",
+  "short_name": "GrO Scout",
+  "description": "Phone-native, consent-first material field observations with local HOLD",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#18231d",
+  "theme_color": "#293329",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./gro-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
