@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#293329">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; connect-src 'none'; media-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'">
+  <title>GrO / WALL-E Field Scout</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <header class="banner">
+    <div class="kicker">GrO / GrO FIELD-SCOUT 001</div>
+    <h1>FIELD SCOUT<span class="cursor">_</span></h1>
+    <p>The world has a pantry. <strong>Observation is not permission.</strong></p>
+  </header>
+
+  <main>
+    <section class="scene">
+      <div class="state" role="status"><span class="dot"></span> <strong>HOLD</strong> · observation only · collection NOT authorized</div>
+      <h2>01 / See something</h2>
+      <label for="photo">Take a photo or choose an original JPEG/PNG</label>
+      <input id="photo" name="photo" type="file" accept="image/jpeg,image/png" capture="environment">
+      <div id="preview-box" class="preview">
+        <span id="preview-placeholder">CAMERA OFFLINE<br>NO IMAGE SELECTED</span>
+        <img id="preview" alt="Your selected local photo" hidden>
+      </div>
+      <p class="fine">Local only. No GPS, automatic upload, web requests, face recognition, device control or camera identity proof. Original photo stays on this device.</p>
+    </section>
+
+    <form id="encounter-form" novalidate>
+      <section>
+        <h2>02 / Tell us what you saw</h2>
+        <label for="description">Item description (your observation)</label>
+        <input id="description" required maxlength="240" placeholder="Old printer frame, bearings, and wires">
+        <label for="category">Possible category — selected by you</label>
+        <select id="category" required></select>
+        <label for="observation">Context / uncertainties</label>
+        <textarea id="observation" rows="3" maxlength="240" required placeholder="Seen from a public sidewalk. Owner and condition unknown."></textarea>
+        <div class="pair">
+          <div><label for="amount">Quantity</label><input id="amount" type="number" min="1" max="100000" step="1" value="1" required></div>
+          <div><label for="unit">Unit</label><select id="unit"></select></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>03 / Whose is it?</h2>
+        <label for="source">Where is this offer or observation from?</label>
+        <select id="source"></select>
+        <label for="land">Property / land class</label>
+        <select id="land"></select>
+        <label for="purpose">Intended use</label>
+        <select id="purpose"></select>
+        <label for="site">Site reference (not GPS, no exact address needed)</label>
+        <input id="site" value="unknown:site" maxlength="120" placeholder="unknown:site">
+        <label for="steward">Steward reference (not a verified owner identity)</label>
+        <input id="steward" value="unknown:steward" maxlength="120" placeholder="unknown:steward">
+      </section>
+
+      <section>
+        <h2>04 / What could go wrong?</h2>
+        <p class="fine">Check known hazards. An unchecked hazard is <strong>not</strong> a declaration that the item is safe.</p>
+        <div id="hazards" class="checks"></div>
+        <p class="warning">Never open locked containers, collect protected specimens, approach dangerous equipment, eat unidentified plants/fungi, or salvage swollen lithium batteries.</p>
+      </section>
+
+      <section>
+        <h2>05 / Possible lives</h2>
+        <p class="fine">This is a deterministic category menu, <strong>not</strong> image recognition or a live GHoT computation.</p>
+        <div id="ideas" class="chips" aria-live="polite"></div>
+        <button type="submit" class="primary">Compile HOLD encounter</button>
+        <p id="message" role="status" aria-live="polite"></p>
+        <div id="result" class="result" hidden>
+          <h3>ENCOUNTER PREPARED / STILL HELD</h3>
+          <p id="hash"></p>
+          <p id="blockers"></p>
+          <div class="buttons">\n            <button id="save-gro" type="button">Save GrO HOLD encounter.json</button>
+            <button id="save-lead" type="button">Save FORAGE-001 lead.json</button>
+            <button id="save-photo" type="button">Save photo-evidence.json</button>
+          </div>
+          <p class="fine">The three files are local downloads. Keep the original photo unchanged for cold verification with `scripts/static-forage-scout.py`. Nothing here grants collection, confirms safety, or adds stock.</p>
+        </div>
+      </section>
+    </form>
+    <footer><strong>SEE ≠ TAKE.</strong> Photo ≠ ownership. Candidate use ≠ safe part. Human permission precedes custody; separate inspection precedes robotic use.</footer>
+  </main>
+</body>
+</html>
