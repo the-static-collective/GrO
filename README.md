@@ -107,3 +107,11 @@ NEW AFFORDANCE
 ### TENET 011 — Recombination Without Collapse
 
 > Two locally admitted, simultaneously eligible fork branches may become explicit parents of a fresh descendant W without canonicalizing, erasing, or inheriting authority from either parent.
+
+## Experimental phone-native companion
+
+**PHONE-CROSSING-002** introduces the first native Android companion under [`android/`](android/)—BLE beacon discovery and user-mediated Wi-Fi Direct transfer of actual reLATTE-signed crossings. It verifies a crossing's SHA-256 identity and P-256 signature before storing the unchanged document on a receiving phone.
+
+This is **not** GrO gameplay admission: the receiver's transport ACK means storage only. The JavaScript GrO/TENET engine is unchanged. Real two-device hardware operation still requires a physical field test; Wi-Fi Direct/BLE availability depends on specific phones.
+
+See [PHONE-CROSSING-002 operator guide](docs/PHONE-CROSSING-002.md) for building, permissions, generating a signed fixture, and a two-phone test.

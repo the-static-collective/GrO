@@ -1,0 +1,59 @@
+name: GrO Android Crossing 002
+
+on:
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/android-crossing-002.yml"
+  pull_request:
+    paths:
+      - "android/**"
+      - ".github/workflows/android-crossing-002.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Build phone-native GrO crossing companion
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install SDK 35 from runner's provisioned Android tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          if [ ! -d "$SDK/platforms/android-35" ]; then
+            "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35"
+          fi
+          if [ ! -d "$SDK/build-tools/35.0.0" ]; then
+            "$SDK/cmdline-tools/latest/bin/sdkmanager" "build-tools;35.0.0"
+          fi
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+      - name: Generate portable Node-to-Android signed crossing fixture
+        run: |
+          mkdir -p android/app/src/test/resources
+          node examples/phone-crossing-002.mjs > android/app/src/test/resources/phone-crossing.json
+      - name: Compile debug APK and run JVM verifier checks
+        working-directory: android
+        run: gradle --no-daemon --stacktrace :app:assembleDebug :app:testDebugUnitTest
+      - name: Prove APK was built
+        run: test -s android/app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gro-crossing-002-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+          if-no-files-found: error
