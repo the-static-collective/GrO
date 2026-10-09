@@ -153,7 +153,7 @@ test("the upstream FORAGE-002 compiler remains source-pinned", () => {
   // Github source blob SHA from static-os experimental FORAGE-002 PR #83.
   const source=readFileSync(new URL("../apps/field-scout/scout-core.mjs", import.meta.url));
   const nativeGitBlobSha=createHash("sha1")
-    .update(Buffer.from("blob "+source.length+"\\0"))
+    .update(Buffer.concat([Buffer.from("blob "+source.length),Buffer.from([0])]))
     .update(source)
     .digest("hex");
   assert.equal(nativeGitBlobSha, "363c7127cb0405e32a86a58d79f6365151a1ed1d");
