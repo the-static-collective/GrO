@@ -260,7 +260,8 @@ export function recordSimulatedConsequence({
 }
 export function verifySimulatedConsequence({site,proposal,registry,disposition,consequence,pinnedObserverKey}) {
   try {
-    if(!verifyLandDisposition({site,proposal,registry,disposition}) ||
+    if(typeof pinnedObserverKey !== "string" ||
+       !verifyLandDisposition({site,proposal,registry,disposition}) ||
        disposition.body.decision!=="SIMULATED_GRANT" ||
        pinnedObserverKey===registry.pinned_public_key ||
        !verifyLandEvent(consequence,{kind:"SITE_SIMULATED_CONSEQUENCE",pinnedKey:pinnedObserverKey}))return false;
@@ -322,7 +323,7 @@ export function makeLandCrossingDraft({site,proposal,sourceWorld,createdAt}) {
   };
 }
 
-export function projectLandSite({site,proposals=[],registry=null,dispositions=[],consequences=[]}) {
+export function projectLandSite({site,proposals=[],registry=null,dispositions=[],consequences=[],witnessPins={}}) {
   if(!verifySite(site))throw new Error("LAND_UNVERIFIED_SITE_ADDRESS");
   for(const p of proposals)if(!verifyLandProposal(site,p))throw new Error("LAND_UNVERIFIED_PROPOSAL");
   if(registry!==null && !validRegistry(site,registry))throw new Error("LAND_INVALID_REGISTRY");
@@ -331,12 +332,17 @@ export function projectLandSite({site,proposals=[],registry=null,dispositions=[]
     if(!p || !registry || !verifyLandDisposition({site,proposal:p,registry,disposition:d}))
       throw new Error("LAND_UNVERIFIED_DISPOSITION");
   }
+  const witnessedCounts=new Map();
   for(const c of consequences){
+    if(!c?.body?.local_disposition_id) throw new Error("LAND_UNVERIFIED_CONSEQUENCE");
+    const count=(witnessedCounts.get(c.body.local_disposition_id)??0)+1;
+    if(count>1)throw new Error("LAND_GRANT_ALREADY_OBSERVED_IN_PROJECTION");
+    witnessedCounts.set(c.body.local_disposition_id,count);
     const p=proposals.find(x=>x.event_id===c.body?.proposal_id);
     const d=dispositions.find(x=>x.event_id===c.body?.local_disposition_id);
     if(!p||!d||!registry||!verifySimulatedConsequence({
       site,proposal:p,registry,disposition:d,consequence:c,
-      pinnedObserverKey:c.signing.public_key,
+      pinnedObserverKey:witnessPins[c.body?.observer_id],
     }))throw new Error("LAND_UNVERIFIED_CONSEQUENCE");
   }
   return {
@@ -389,6 +395,7 @@ export function composeNeighboringSites({left,right}) {
     legal_easement_created:false,
     utility_interconnection_granted:false,
     owner_rights_transferred:false,
+    cadastral_adjacency_verified:false,
   };
   return {...body,composition_id:"gro-neighbor:"+digest(ADDRESS_DOMAIN,body)};
 }
