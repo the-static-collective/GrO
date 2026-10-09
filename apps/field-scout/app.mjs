@@ -144,3 +144,11 @@ $("save-gro").addEventListener("click", () => {\n  if (prepared) download("gro-f
 globalThis.addEventListener("pagehide", () => {
   if (previewURL) URL.revokeObjectURL(previewURL);
 });
+
+// Service worker caches only the public static app shell, never input photos.
+// Offline camera/file chooser and local hashing remain under user control.
+if ("serviceWorker" in navigator && globalThis.isSecureContext) {
+  navigator.serviceWorker.register("./sw.js", {scope: "./"}).catch(() => {
+    // The app still works without installation/offline shell support.
+  });
+}
