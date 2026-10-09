@@ -87,7 +87,7 @@ async function classify(rootArg,id,assetKind,activity) {
   validatePropertyIntake(updated);
   const newPath=join(root,"intake.private.json");
   const staged=join(root,".intake-"+process.pid+"-"+Date.now()+".tmp");
-  await createFile(staged,JSON.stringify(updated,null,2)+"\\n");
+  await createFile(staged,JSON.stringify(updated,null,2)+"\n");
   try {await rename(staged,newPath);}
   catch(e) {await import("node:fs/promises").then(fs=>fs.rm(staged,{force:true}));throw e;}
   const plan=makePropertyAssetPlan(dest,futureFreeIso());
