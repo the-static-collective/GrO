@@ -30,4 +30,5 @@ android {
 dependencies {
     implementation("io.github.erdtman:java-json-canonicalization:1.1")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
