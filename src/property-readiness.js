@@ -112,7 +112,9 @@ export function assessPropertyCandidate(candidate,at) {
       ? "revoked"
       : e.expires_at!==null && timestamp(e.expires_at)<=timestamp(at)
         ? "expired"
-        : e.state;
+        : e.state==="reviewed" && timestamp(e.reviewed_at)>timestamp(at)
+          ? "claimed"
+          : e.state;
     evidenceCounts[status]++;
     if(needed.includes(topic) && status!=="reviewed")blockers.push(topic);
   }
