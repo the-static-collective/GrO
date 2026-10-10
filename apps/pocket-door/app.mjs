@@ -70,7 +70,7 @@ $("hold-note").addEventListener("click",()=>{
 $("copy-invite").addEventListener("click",()=>{
  if(!packet)return;
  const u=new URL(location.href);u.search="";u.hash="";u.searchParams.set("door",packet.body.id);
- const link=u.protocol==="https:"||u.hostname==="localhost"||u.hostname==="127.0.0.1"?
+ const link=u.protocol==="https:"?
   u.href:"(No shareable host URL is configured yet)";
  const message="Someone left a little door for you.\n"+packet.body.id+
   " — "+packet.body.invitation+"\n"+link+
