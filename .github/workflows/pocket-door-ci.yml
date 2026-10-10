@@ -1,0 +1,37 @@
+name: GrO Pocket Doors 001 — verify only
+on:
+  pull_request:
+    paths:
+      - 'apps/pocket-door/**'
+      - 'src/field-pocket-door.js'
+      - 'src/field.js'
+      - 'test/pocket-door-001.test.js'
+      - '.github/workflows/pocket-door-ci.yml'
+  push:
+    branches:
+      - 'experiment/pocket-doors-001'
+    paths:
+      - 'apps/pocket-door/**'
+      - 'src/field-pocket-door.js'
+      - 'src/field.js'
+      - 'test/pocket-door-001.test.js'
+      - '.github/workflows/pocket-door-ci.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Full GrO tests
+        run: npm test
+      - name: Verify new browser and adapter source syntax
+        run: |
+          node --check apps/pocket-door/pocket-core.mjs
+          node --check apps/pocket-door/app.mjs
+          node --check src/field-pocket-door.js
+      - name: No automatic deploy
+        run: echo "Draft-only GrO local door experiment; production remains HOLD."

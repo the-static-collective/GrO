@@ -123,3 +123,18 @@ robot-pickup command. `src/field-forage.js` projects the received record as an
 The mobile interface requires an HTTPS host before it can be opened from a
 phone; code in GitHub is not a live deployment.
 
+
+
+## POCKET-DOOR 001 — Textable World Doors (experimental)
+
+The phone-sized [Pocket Doors workbench](apps/pocket-door/index.html) lets a
+person manually carry an authored public demonstration door as a text invitation
+or content-verified JSON packet, choose one of four locally rendered entrances,
+and export a stand-alone offline HTML room. Three sample doors are
+`MOSS-042`, `ROSEMARY-001`, and `LIGHT-KEEP-003`.
+
+`src/field-pocket-door.js` projects the verified door as a **GrO
+actor-local encounter**, never an authority-bearing action or public trace.
+The app **does not** send SMS, host a public `abundent.org/d/` route, accept
+arbitrary unsigned worlds, collect recipients, or deploy itself. [Protocol,
+tests, and remaining HOLD gates](docs/POCKET-DOOR-001.md).
