@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#15271d"><meta name="description" content="GrO Pocket Door: a textable, locally verifiable invitation to a small world."><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'none'; media-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>GrO · Pocket Doors 001</title><link rel="stylesheet" href="./style.css"><script type="module" src="./app.mjs"></script></head>
+<body>
+<header><a href="https://github.com/the-static-collective/GrO" rel="noreferrer noopener" class="brand">GrO<span> / </span>Pocket Doors</a><span class="eyebrow">THE FIELD FITS IN A MESSAGE · 001</span></header>
+<main><section class="intro"><p class="eyebrow">ADDRESS → ENCOUNTER → HOLD → POSSIBILITY</p><h1>Text someone<br><em>a little world.</em></h1>
+<p>A small address can become a room when you open it. Carry it, keep it, or close it. There is no app account, compulsory reply, or automatic message sending.</p></section>
+<section class="columns">
+<div class="panel"><h2>1 · Choose a pocket door</h2><label for="door">Three authored demonstration doors</label><select id="door"></select><button id="open">Open locally</button>
+<label for="load-file">Or inspect a portable door JSON from a friend</label><input id="load-file" type="file" accept=".json,application/json">
+<label for="import-area">Or paste a complete JSON door packet</label><textarea id="import-area" rows="3" maxlength="7000" spellcheck="false" placeholder="Paste the entire packet here, not just an unsupported door name."></textarea><button id="load-paste" class="secondary">Verify pasted door</button>
+<div role="status" aria-live="polite" id="status" class="status">HOLD · NOTHING IN THIS POCKET</div><p class="small" id="digest">No verified demo door is in this pocket.</p></div>
+<div class="panel world"><p class="eyebrow">A LOCAL ROOM · NOT REMOTE WORLD AUTHORITY</p><h2 id="title">Choose a door.</h2><p id="invite" class="lede">No obligation to enter.</p>
+<label for="entrance">2 · Choose an entrance</label><select id="entrance"></select>
+<label for="depth">3 · Depth dial <output id="depth-label">10/10</output></label><input id="depth" type="range" min="0" max="10" step="1" value="10">
+<div class="scene"><h3 id="scene-title">The threshold</h3><p id="scene">The room is waiting.</p></div>
+<label for="local-note">Leave a little light (optional, not shared)</label><textarea id="local-note" rows="2" maxlength="180" placeholder="A private-to-this-tab reflection."></textarea><button id="hold-note" class="secondary">Hold note in this open page</button><p class="small" id="note-display">No reflection held; this is a complete encounter.</p>
+</div>
+</section>
+<section class="panel share"><h2>4 · Carry this door</h2><p>A copied invitation is human-readable. A JSON packet allows the recipient to check the exact public demonstration content. Neither is automatically delivered.</p>
+<div class="actions"><button id="copy-invite" disabled>Copy a text invitation</button><button id="copy-json" disabled>Copy verifiable packet</button><button id="export-json" disabled>Carry door (.json)</button><button id="export-html" disabled>Grow offline room (.html)</button></div>
+<label for="copy-area">Manual copy area</label><textarea id="copy-area" rows="3" spellcheck="false" readonly></textarea><button id="clear" class="secondary">Close door / clear this page</button>
+<p class="small">The door link works only at the actual HTTPS host serving this application. GitHub source files alone do not establish a public phone-ready URL. Downloaded HTML works offline. The demonstration's text does not include audio, manga generation or operational workbench controls.</p></section>
+<section class="panel boundaries"><h2>The GrO law</h2><p>A door is an encounter, not an order. Opening a world does not grant permission to publish, enter physical places, collect private replies, operate equipment, or treat an unsigned digest as author identity.</p><p>No SMS sender, contact list, tracker, analytics, database, network discovery or background effect. A recipient may keep or ignore the invitation without producing a trace.</p></section>
+</main><footer>THE MAP IS CONSEQUENCE · A DOOR IS AN INVITATION · KEEPING IS ENOUGH</footer>
+</body></html>
