@@ -1,0 +1,60 @@
+{
+  "schema": "webz/arrival-demo/v0",
+  "kind": "public-reference",
+  "source": {
+    "repository": "the-static-collective/lemonPRESS",
+    "commit": "02feb4454240d482a5e0e03258f24f8b5cc0b9f5",
+    "path": "catalog.yaml",
+    "git_blob": "907759670a118e8a1098fe3350a0ad9f9ae37045",
+    "sha256": "sha256:cbe0bca162dea2d7f828bbb3546f3de3ab7f787084fcc7f4b8b193ca0d866d75",
+    "content": "house: lemonPRESS\ncatalog_version: 0.2\nworks:\n  - id: lemonpress:another-clue\n    title: \"¿another clue?\"\n    subtitle: \"an accidental book about apertures, receipts, and the things that survive becoming\"\n    status: admitted\n    admission: \"works/another-clue/ADMISSION.md\"\n    admitted_on: \"2026-09-30\"\n    intended_lanes:\n      - physical\n      - digital\n      - crawler\n      - archive\n    note: \"First admitted multi-branch specimen; Print Reading Cut 001.\"\n"
+  },
+  "crossing": {
+    "schema": "relatte.crossing-envelope/v0",
+    "protocol_version": "0",
+    "source_particular": "particular:abundent-lemonpress-catalog-001",
+    "source_world": "world:abundent-experimental-adapter",
+    "source_history_head": null,
+    "parents": [],
+    "declared_kind": "PUBLIC_SOURCE_REFERENCE",
+    "payload_refs": [
+      {
+        "address": "sha256:cbe0bca162dea2d7f828bbb3546f3de3ab7f787084fcc7f4b8b193ca0d866d75",
+        "role": "source-bytes",
+        "media_type": "text/yaml"
+      }
+    ],
+    "requested_effect": null,
+    "capability_ref": null,
+    "privacy_policy": "public-reference-only",
+    "audience_policy": {
+      "destination": "world:gro-local-review"
+    },
+    "return_address": null,
+    "created_at": "2026-10-11T08:03:00.000Z",
+    "signing": {
+      "algorithm": "ECDSA-P256-SHA256",
+      "public_key": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "vTCclg9Z3HuJMB9BbfymTGql6qFJ-GFN8RC_zgcWEb8",
+        "y": "QvxVSuKAv4rpeOq86yGi378OkVnptTBeIGqGzufUEg4"
+      },
+      "signature": "ySxSsSE60YBe2frYUl2qCIcTwLIyUsY3ShFqk4WccQOGU-f7jOZfFVa7A_N9gooruGZJ1CGSt2SeOnzEm2f0sQ",
+      "domain": "relatte.crossing-signature/v0"
+    },
+    "extensions": {
+      "source": {
+        "repository": "the-static-collective/lemonPRESS",
+        "commit": "02feb4454240d482a5e0e03258f24f8b5cc0b9f5",
+        "path": "catalog.yaml",
+        "git_blob": "907759670a118e8a1098fe3350a0ad9f9ae37045"
+      },
+      "claim": "experiment-signer-not-source-owner"
+    },
+    "crossing_id": "relatte-crossing-v0:788eb027228f96f6a4c8ab76356121732b3f5d8e63763b2d08168b84869f1f97"
+  },
+  "source_owner_signed": false,
+  "receiver_status": "NOT_RECEIVED",
+  "demo_key_scope": "ephemeral-experiment-key-not-owner-identity"
+}
