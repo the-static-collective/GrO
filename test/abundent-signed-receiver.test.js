@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile,writeFile,mkdtemp,rm,chmod} from 'node:fs/promises';
+import {readFile,writeFile,mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {verifyReceipt,stateRef,CONFIG} from '../src/relatte-signed-hold.js';
@@ -58,4 +58,4 @@ test('different file or receiver configuration cannot overwrite history',async()
  await writeFile(config,before.replace('world:gro-local-review','world:alien'));
  await assert.rejects(reopenAbundentHold(dir),/DIFFERENT_RECEIVER_CONFIG/);
  assert.equal(record.events[1].receipt.kind,'R3_HOLD');
-});
+}));
