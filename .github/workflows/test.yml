@@ -32,6 +32,7 @@ jobs:
           path: .deps/reLATTE
       - run: npm install --prefix .deps/reLATTE --no-audit --no-fund
       - run: node --experimental-strip-types examples/tenet-002-relatte.mjs .deps/reLATTE
+      - run: node --experimental-strip-types examples/abundent-relatte-compatibility-002.mjs .deps/reLATTE
 
   tenet-003-addressed-relatte:
     runs-on: ubuntu-latest
