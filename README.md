@@ -6,6 +6,10 @@ GrO is an embodied, provenance-preserving possibility game.
 
 It does not gamify reality by painting points on top of it. GrO notices, carries, composes, and grows playable possibility already latent in reality.
 
+## Field Quest Engine 001 — real experiments as possible encounters
+
+GrO can now prepare an **unpublished, content-addressed tenet seed** from an unfinished Full Measure `static.field-test-entry/v0`. A human must explicitly invoke the existing GrO `leave-tenet` action for a later participant to encounter/hold/ignore/act through it. Acting through a tenet is **not** proof a physical experiment passed, nor a Full Measure witnessed Deed. No automatic geolocation, network relay or hardware action occurs. [Executable adapter and safety bounds](docs/FIELD-QUEST-ENGINE-001.md) · [Full Measure companion draft](https://github.com/the-static-collective/full-measure-world-layer/pull/54).
+
 ## Prime loop
 
 ```text
