@@ -91,10 +91,32 @@ export function openStore(path) {
     if (error.code !== "ENOENT") throw error;
     state = { schema: "gro/sibley-relay-state/v0.2", records: [] };
   }
-  return { records: state.records, save() {
+  if (!Array.isArray(state.opportunities)) state.opportunities = [];
+  return { records: state.records, opportunities: state.opportunities, save() {
     mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
     const temp = path + "." + process.pid + ".tmp";
     writeFileSync(temp, JSON.stringify(state, null, 2), { mode: 0o600 });
     renameSync(temp, path);
   } };
+}
+
+/** New possibilities are proposals, never event assignments or land-access permissions. */
+export function makeOpportunity(source, input) {
+  if (!source || source.review?.decision !== "publish") throw Error("Reviewed source report required");
+  const title = checkText(input?.title, 10, 90);
+  const description = checkText(input?.description, 15, 300);
+  if (!title || !description || !["observation_only", "physical_cleanup"].includes(input?.action)) {
+    throw Error("Valid opportunity title, description and action required");
+  }
+  return { id: randomUUID(), locality: LOCALITY, source_report_id: source.id,
+    title, description, zone: source.zone, action: input.action, created_at: new Date().toISOString(),
+    state: input.action === "observation_only" ? "open_observation_proposal" : "awaiting_official_authorization",
+    authorization: "not_issued", volunteer_assignment: false, deed: false, monetary_claim: false };
+}
+export function publicOpportunities(items) {
+  return { schema: "gro/sibley-opportunities/v0.2", locality: LOCALITY,
+    disclaimer: "Unaffiliated proposals; physical cleanup always requires organizer and park approval",
+    items: items.map(o => ({ id: o.id, source_report_id: o.source_report_id,
+      title: o.title, description: o.description, zone: o.zone, action: o.action,
+      state: o.state, authorization: o.authorization, created_at: o.created_at })) };
 }
