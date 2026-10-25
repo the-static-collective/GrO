@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#143a30">
+  <title>Sibley Park · GrO Stewardship Field Porch</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#18302a;background:#f1f5ef}
+    *{box-sizing:border-box}body{margin:0}header{background:#143a30;color:#fff;padding:1.1rem max(1rem,calc((100vw - 1100px)/2))}
+    header h1{font-size:clamp(1.6rem,3vw,2.6rem);margin:.3rem 0}
+    header p{max-width:65ch;margin:.3rem 0}main{max-width:1100px;margin:auto;padding:1rem}
+    .banner{padding:1rem;border:2px solid #af7820;border-radius:12px;background:#fff5dc;margin:0 0 1rem}
+    .grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,1fr);gap:1rem}
+    .panel{border-radius:13px;background:#fff;border:1px solid #d0ddd2;box-shadow:0 2px 12px #17302210;padding:1rem;margin-bottom:1rem}
+    h2{margin:.1rem 0 .6rem;font-size:1.22rem}h3{margin:.75rem 0 .4rem;font-size:1rem}
+    #map{height:390px;border-radius:10px;background:#dce9de}
+    .muted,small{color:#456158;font-size:.89rem}.tag{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:#386250;font-weight:700}
+    .quest{padding:.7rem 0;border-top:1px solid #e4ece5}.quest:first-child{border-top:0}
+    label{display:block;font-weight:600;margin:.6rem 0 .25rem}
+    select,textarea,input{display:block;width:100%;border:1px solid #aebfb3;border-radius:7px;padding:.55rem;font:inherit;background:#fff}
+    textarea{min-height:80px;resize:vertical}
+    .row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center}.row>*{flex:1}
+    button{cursor:pointer;border:0;border-radius:8px;padding:.66rem .9rem;background:#176749;color:white;font-weight:700}
+    button.secondary{background:#ddebe1;color:#214c3a}button.warning{background:#7b4232}
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #f5a700}
+    .check{display:flex;gap:.5rem;align-items:flex-start;font-weight:400}.check input{width:auto;margin:.3rem 0}
+    #records{list-style:none;padding:0;max-height:390px;overflow:auto}#records li{border-bottom:1px solid #e5ebe7;padding:.6rem 0}
+    .stats{display:flex;gap:1rem;flex-wrap:wrap}.stats strong{font-size:1.7rem;display:block}
+    a{color:inherit}footer{padding:1rem;text-align:center;color:#456158}
+    @media(max-width:770px){.grid{display:block}#map{height:300px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="tag" style="color:#cce6d5">GrO × Full Measure · Field Porch 001</div>
+  <h1>Sibley Park: a living stewardship quest</h1>
+  <p>The <strong>whole park</strong> is one GrO locality. Each person's observation can become a possible next act of care.</p>
+</header>
+<main>
+  <div class="banner" role="status"><strong>Experimental, local-only field prototype.</strong> These are example quests, <em>not</em> official Kiwanis, Blue Earth Project or City of Mankato assignments. Reports stay on this device unless you explicitly export them. No shared live map, funds, volunteer shifts or verified Deeds are connected. Do not enter restricted areas, disrupt displays, or touch sharp, electrical or hazardous debris.</div>
+  <div class="grid">
+    <div>
+      <section class="panel">
+        <h2>Whole-park field map</h2>
+        <div id="map" aria-label="Map centered on Sibley Park"></div>
+        <p class="muted">Map focus is approximate; <strong>no surveyed park-boundary polygon is claimed</strong>. Tap the map to choose a coarse observation location. Never publish a volunteer's live whereabouts. Tile imagery needs an internet connection.</p>
+        <div class="stats"><div><strong id="local-count">0</strong><small>local proposals</small></div><div><strong id="site-count">0</strong><small>coarse map observations</small></div><div><strong>0</strong><small>verified Deeds (no verifier)</small></div></div>
+      </section>
+      <section class="panel">
+        <h2>Park-wide example quest network</h2>
+        <p class="muted">Zones are descriptive labels, not exclusive assignments or claims to land.</p>
+        <div class="quest"><strong>01 · Spot the remainder</strong><div class="muted">Notice tinsel, plastic fragments, litter, or a maintenance issue. Record material and rough zone. No pickup required.</div></div>
+        <div class="quest"><strong>02 · Safe cleanup relay</strong><div class="muted">With organizer/park approval: collect ordinary safe litter using proper equipment, then report what was done. Self-reports await human witness.</div></div>
+        <div class="quest"><strong>03 · Better next year</strong><div class="muted">Record a proposed material substitution, reusable decoration, or route improvement. Steward review can turn a finding into a new quest.</div></div>
+        <div class="quest"><strong>04 · After-the-lights audit</strong><div class="muted">Repeat agreed measurements using a consistent method before, during and after the event, under an approved study plan.</div></div>
+      </section>
+    </div>
+    <div>
+      <section class="panel">
+        <h2>Leave a local field trace</h2>
+        <form id="field-form">
+          <label for="kind">What happened?</label>
+          <select id="kind" required><option value="observation">Observation / issue noticed</option><option value="cleanup_report">Cleanup action reported</option><option value="improvement">Improvement idea</option></select>
+          <label for="zone">Where in the park?</label>
+          <select id="zone"><option value="general">General / unsure</option><option value="trails">Walking trails</option><option value="farm">Farm and gardens</option><option value="ballfields">Ball fields / northern grounds</option><option value="river">Riverside</option><option value="hill">Hill / oak savanna</option><option value="event-route">Event routes / displays</option></select>
+          <label for="material">Material / issue type</label>
+          <select id="material"><option value="tinsel">Decorative fragments / tinsel</option><option value="plastic">Plastic litter</option><option value="paper">Paper / cardboard</option><option value="metal">Metal / wire</option><option value="other">Other / unknown</option></select>
+          <label for="note">Describe only what you observed or propose</label>
+          <textarea id="note" maxlength="750" required placeholder="What did you notice? What would help? No names or private details."></textarea>
+          <p id="chosen-location" class="muted">No location selected (that's fine).</p>
+          <button type="button" id="clear-point" class="secondary">Remove map pin</button>
+          <label class="check"><input type="checkbox" id="approved">For a <em>cleanup action report only</em>: I affirm that any physical work had the required event/park authorization and was safe.</label>
+          <p class="muted">Submission means a <strong>local self-report</strong>, not a verified ecological result, volunteer credit, Penny entitlement or public submission.</p>
+          <button type="submit">Save local proposal</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Local traces</h2>
+        <ul id="records" aria-live="polite"><li class="muted">Nothing recorded yet.</li></ul>
+        <div class="row"><button id="export" class="secondary">Export JSON</button><button id="forget" class="warning">Clear this device</button></div>
+      </section>
+    </div>
+  </div>
+  <section class="panel">
+    <h2>Where this could cross next</h2>
+    <p><strong>EcoMapper:</strong> with the Blue Earth Project's consent, steward-reviewed environmental observations may be imported/exported through an agreed adapter. <strong>Full Measure:</strong> only separately authorized human-witness receipts can become Deeds. <strong>Kiwanis:</strong> volunteer scheduling and donation allocations remain under its own rules. <strong>Penny:</strong> separately documented, actually received funds could establish a designated stewardship reserve; no volunteer-hour redemption or backing claim exists.</p>
+    <p class="muted">Source ownership and permissions stay local. See <a href="./README.md">the field pilot contract</a> for consent, review, finance, and shared-live requirements.</p>
+  </section>
+</main>
+<footer>Built as a GrO field proposal. The map is a doorway; the park is the actual world.</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+{
+  "schema": "gro/locality-proposal/v0.1",
+  "id": "gro:locality:sibley-park-mankato-mn",
+  "title": "Sibley Park — Stewardship Living Quest",
+  "scope": "entire_park",
+  "address": "900 Mound Avenue, Mankato, Minnesota, USA",
+  "map_focus_approximate": {
+    "lat": 44.16111,
+    "lng": -94.03333,
+    "source": "approximate public park coordinate; not a boundary survey"
+  },
+  "polygon": null,
+  "mapped_geographic_scope_status": "pending city GIS boundary validation",
+  "jurisdiction": "City of Mankato park rules; event operations separately governed by Kiwanis Holiday Lights",
+  "authority_status": "unapproved proposal — not an event assignment",
+  "source_refs": [
+    "https://www.mankatomn.gov/about-mankato/parks-trails-and-recreation/community-parks/sibley-park",
+    "https://www.kiwanisholidaylights.com/volunteers",
+    "https://blueearthproject.org/"
+  ],
+  "zones": [
+    {
+      "id": "general",
+      "label": "General / unsure",
+      "status": "descriptive_only"
+    },
+    {
+      "id": "trails",
+      "label": "Walking trails",
+      "status": "descriptive_only"
+    },
+    {
+      "id": "farm",
+      "label": "Farm and gardens",
+      "status": "descriptive_only"
+    },
+    {
+      "id": "ballfields",
+      "label": "Ball fields / northern grounds",
+      "status": "descriptive_only"
+    },
+    {
+      "id": "river",
+      "label": "Riverside",
+      "status": "descriptive_only"
+    },
+    {
+      "id": "hill",
+      "label": "Hill / oak savanna",
+      "status": "descriptive_only"
+    },
+    {
+      "id": "event-route",
+      "label": "Event routes / displays",
+      "status": "descriptive_only"
+    }
+  ],
+  "quest_templates": [
+    {
+      "id": "spot-remainder",
+      "label": "Spot the remainder",
+      "verb": "observe",
+      "requires_organizer_approval_for_action": false,
+      "release": "draft_only"
+    },
+    {
+      "id": "safe-cleanup",
+      "label": "Safe cleanup relay",
+      "verb": "collect",
+      "requires_organizer_approval_for_action": true,
+      "release": "draft_only"
+    },
+    {
+      "id": "better-next-year",
+      "label": "Better next year",
+      "verb": "propose",
+      "requires_organizer_approval_for_action": false,
+      "release": "draft_only"
+    },
+    {
+      "id": "after-lights-audit",
+      "label": "After-the-lights audit",
+      "verb": "measure",
+      "requires_organizer_approval_for_action": true,
+      "release": "draft_only"
+    }
+  ],
+  "state_model": [
+    "notice",
+    "hold_local",
+    "submit_with_consent",
+    "review",
+    "approved_action",
+    "report",
+    "independent_human_witness",
+    "full_measure_deed_candidate",
+    "consequence"
+  ],
+  "forbidden_conflations": [
+    "self_report != independently verified Deed",
+    "map pin != legal park boundary or cleanup permission",
+    "volunteer participation != Kiwanis nonprofit grant eligibility",
+    "expected donation != received financial backing",
+    "PENNY symbol != exchangeable or redeemable claim",
+    "EcoMapper participation != consent to republish its data"
+  ],
+  "sharing": {
+    "default": "none",
+    "exact_volunteer_location": "never_public",
+    "export": "explicit",
+    "reviewer": "future scoped role"
+  },
+  "finance": {
+    "automatic_credits": false,
+    "token_issue": false,
+    "planned_reserve": "funded only after actual nonprofit-eligible allocations are received and legally designated"
+  },
+  "implementation": "local static prototype, not connected to shared live service"
+}
