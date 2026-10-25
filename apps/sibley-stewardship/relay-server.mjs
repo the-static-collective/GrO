@@ -95,6 +95,26 @@ export function createRelay(config) {
       return reply(res, 200, { schema: "gro/sibley-steward-review/v0.2",
         nonpublic: true, records: store.records });
     }
+    if (method === "GET" && pathname === "/api/steward/deed-candidates") {
+      if (!authorized(req, config.stewardCode)) return reply(res, 403, { error: "Steward code required" });
+      return reply(res, 200, {
+        schema: "gro/full-measure-candidates/v0.1", locality: LOCALITY,
+        status: "unadmitted source-local proposal", no_full_measure_authority: true,
+        items: store.records.filter(r =>
+          r.kind === "cleanup_report" && r.review?.decision === "publish" &&
+          r.witness?.decision === "confirm" && r.public_summary_consent === true
+        ).map(r => ({
+          source_report_id: r.id, kind: r.kind, zone: r.zone,
+          public_summary: r.public_summary,
+          steward_review_at: r.review.at, witness_attestation_at: r.witness.at,
+          witness_independence_claimed: r.witness.independent_observation_affirmed,
+          authorization_claimed: r.witness.authorized_activity_affirmed,
+          actor_identity_proof: "unverified_passcode_roles",
+          full_measure_disposition: "HOLD_pending_authorized_review",
+          funds_or_token_claim: null
+        }))
+      });
+    }
     if (method !== "POST") return reply(res, 404, { error: "Unknown route" });
     if (!isSameOrigin(req)) return reply(res, 403, { error: "Cross-origin writes denied" });
     try {
