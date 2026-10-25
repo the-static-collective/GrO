@@ -105,6 +105,13 @@ test("Sibley report → steward → independent witness → public-safe board, p
     board = await (await req("/api/board")).json();
     assert.equal(board.items[0].deed_candidate_only, true);
 
+    assert.equal((await req("/api/steward/deed-candidates")).status, 403);
+    const candidates = await (await req("/api/steward/deed-candidates", "GET", config.stewardCode)).json();
+    assert.equal(candidates.items.length, 1);
+    assert.equal(candidates.items[0].full_measure_disposition, "HOLD_pending_authorized_review");
+    assert.ok(!JSON.stringify(candidates).includes("THAT MUST NEVER"));
+    assert.ok(!JSON.stringify(candidates).includes("44.161"));
+
     assert.equal((await req("/relay-client.js")).status, 200);
     assert.equal((await req("/steward.html")).status, 200);
     assert.equal((await req("/steward.js")).status, 200);
