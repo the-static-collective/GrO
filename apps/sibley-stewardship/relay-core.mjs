@@ -44,10 +44,12 @@ export function makeReport(d, existing) {
   return { id: randomUUID(), source_local_id: sourceId, locality: LOCALITY,
     kind: d.kind, zone: d.zone, material: d.material, note, point,
     permission_affirmed: d.kind === "cleanup_report" ? true : null,
-    created_at: new Date().toISOString(), review: null, witness: null, public_summary: null };
+    created_at: new Date().toISOString(), review: null, witness: null,
+    public_summary_consent: d.consent_to_public_summary === true, public_summary: null };
 }
 export function reviewReport(record, data) {
   if (!record || !["publish", "hold", "refuse"].includes(data?.decision)) throw Error("Unknown report or review disposition");
+  if (data.decision === "publish" && record.public_summary_consent !== true) throw Error("Public-summary consent required");
   const summary = data.decision === "publish" ? checkText(data.summary, 10, 200) : null;
   if (data.decision === "publish" && !summary) throw Error("Separate public-safe summary required");
   const note = data.note == null ? "" : checkText(data.note, 0, 250);
