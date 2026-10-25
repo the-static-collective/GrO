@@ -20,7 +20,7 @@ No account, token or backend is needed. The prototype can:
 - save up to 500 local-only drafts per browser, display them, export explicit JSON, or erase them from that browser;
 - label every item `local_hold` / `self_report_unverified`; **never** mint a Deed, Penny, reimbursement or volunteer credit.
 
-No GPS tracking or photograph upload. Map click location is rounded to about 0.001° (~100 m). A broad viewport proximity filter is **not a legal park boundary check**. No data is transmitted by this app except ordinary OSM tile requests when tiles load. Avoid sensitive details in free text because exports may be reshared.
+No GPS tracking or photograph upload. Map click location is rounded to about 0.001° (~100 m). A broad viewport proximity filter is **not a legal park boundary check**. The app does not upload field reports: they remain in browser storage until exported. Loading this page and its map makes ordinary web requests to the hosting server, the Leaflet CDN and OpenStreetMap tile hosts, which may receive standard connection metadata. Avoid sensitive details in free text because exports may be reshared.
 
 ## A real park-wide live service needs additional gates
 
