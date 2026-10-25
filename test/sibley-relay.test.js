@@ -37,7 +37,7 @@ test("Sibley report → steward → independent witness → public-safe board, p
 
     const draft = { source_local_id: "local-sibley-001", kind: "cleanup_report",
       zone: "river", material: "tinsel", note: "Private claim with sensitive words THAT MUST NEVER AUTO-PUBLISH",
-      point: { lat: 44.1611333, lng: -94.03334 }, consent_to_review: true };
+      point: { lat: 44.1611333, lng: -94.03334 }, consent_to_review: true, consent_to_public_summary: true };
     assert.equal((await req("/api/reports", "POST", config.inviteCode, draft)).status, 400);
     const result = await req("/api/reports", "POST", config.inviteCode,
       { ...draft, permission_affirmed: true });
@@ -58,6 +58,15 @@ test("Sibley report → steward → independent witness → public-safe board, p
       { id, decision: "publish", summary: "Debris reviewed in riverside zone." })).status, 403);
     assert.equal((await req("/api/steward/review", "POST", config.stewardCode,
       { id, decision: "publish", summary: "short" })).status, 400);
+    const privateOnly = await req("/api/reports", "POST", config.inviteCode, {
+      source_local_id: "local-sibley-private-002", kind: "observation", zone: "trails",
+      material: "plastic", note: "Private-only report has no publication consent",
+      consent_to_review: true, consent_to_public_summary: false
+    });
+    assert.equal(privateOnly.status, 202);
+    const privateId = (await privateOnly.json()).id;
+    assert.equal((await req("/api/steward/review", "POST", config.stewardCode,
+      { id: privateId, decision: "publish", summary: "This must remain private!" })).status, 400);
     const review = await req("/api/steward/review", "POST", config.stewardCode,
       { id, decision: "publish", summary: "Reviewed example: decorative debris in riverside zone." });
     assert.equal(review.status, 200);
