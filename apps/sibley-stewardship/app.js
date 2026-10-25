@@ -41,9 +41,10 @@ function draw() {
   if (observationLayer) observationLayer.remove();
   observationLayer = L.layerGroup().addTo(map);
   traces.filter(t => t.point).forEach(t => {
+    const popup = document.createElement("span");
+    popup.textContent = t.kind + " · unverified local report";
     L.circleMarker([t.point.lat, t.point.lng], { radius: 7, color: "#ad672e", fillOpacity: .65 })
-      .bindPopup(document.createTextNode(t.kind + " · unverified local report"))
-      .addTo(observationLayer);
+      .bindPopup(popup).addTo(observationLayer);
   });
 }
 function coarse(point) {
