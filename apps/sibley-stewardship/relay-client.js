@@ -92,7 +92,8 @@ el("relay-load").addEventListener("click", drafts);
 el("relay-refresh").addEventListener("click", () => relayOnline ? board() : health());
 el("relay-send").addEventListener("click", async () => {
   if (!relayOnline) { el("relay-result").textContent = "No shared relay here."; return; }
-  const record = drafts().find(r => r.id === el("relay-draft").value);
+  const chosenId = el("relay-draft").value;
+  const record = drafts().find(r => r.id === chosenId);
   const code = el("relay-code").value;
   if (!record || !code) { el("relay-result").textContent = "Choose a draft and supply the invitation code."; return; }
   if (!confirm("Share this local report and optional coarse map point privately with the relay steward for review? It will not be publicly posted automatically.")) return;
