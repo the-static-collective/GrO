@@ -22,7 +22,13 @@ No account, token or backend is needed. The prototype can:
 
 No GPS tracking or photograph upload. Map click location is rounded to about 0.001° (~100 m). A broad viewport proximity filter is **not a legal park boundary check**. The app does not upload field reports: they remain in browser storage until exported. Loading this page and its map makes ordinary web requests to the hosting server, the Leaflet CDN and OpenStreetMap tile hosts, which may receive standard connection metadata. Avoid sensitive details in free text because exports may be reshared.
 
-## A real park-wide live service needs additional gates
+## Shared field relay v0.2 (new, experimental)
+
+A real **single-process, account-free shared pilot** now exists: [Runbook 002](RUNBOOK-002.md). Start `relay-server.mjs` with distinct server-side invitation, steward and witness codes. It serves the whole-park map, the private review desk, a steward-curated public board with SSE refresh, and follow-on quest **proposals**. Volunteers explicitly choose whether to send a local draft and separately consent to any public-safe summary. Private raw notes and even coarse point locations stay off the public board.
+
+This relay is **not hosted on Abundent, not an approved live park cleanup service, not suitable for unattended production use**, and not authorized to mint Full Measure Deeds or Penny value. See the runbook's missing HTTPS, external approvals, abuse management and identity verification gates. The static local-only field porch remains functional without it.
+
+## A real park-wide production service needs additional gates
 
 1. **Park/event scope & safety:** obtain an appropriate agreement with City of Mankato parks staff and Kiwanis before presenting volunteer tasks as authorized; distinguish park-wide observation from event-site physical activity. Avoid waterways, habitat restoration areas, active routes and electrical displays unless supervised by qualified stewards. Schedule and safety procedures govern pickups.
 2. **Environmental authority:** ask Blue Earth Project whether EcoMapper is the appropriate existing source of truth for litter categories, photographs, environmental measures and verification. Agree on an import/export contract; do not scrape participant records or silently copy their leaderboard. Provide source timestamps and method (before/during/after, route, weather, area/time sampled) so comparable findings remain comparable.
