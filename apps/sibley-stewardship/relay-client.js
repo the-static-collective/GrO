@@ -8,7 +8,11 @@ shell.innerHTML = `
   <p id="relay-health" role="status">Checking for a connected relay…</p>
   <p class="muted">Only steward-reviewed summaries enter this public board. All example quests remain unaffiliated proposals. No GPS tracking, public worker locations, automatic Deeds or Penny rewards.</p>
   <div class="row"><button type="button" class="secondary" id="relay-refresh">Refresh board</button></div>
+  <h3>Steward-reviewed observations</h3>
   <ul id="relay-board" aria-live="polite"></ul>
+  <h3>New possibilities / park-wide quest proposals</h3>
+  <p class="muted">Observation invites are ideas, not endorsements. Physical cleanup proposals require separate organizer and park authorization before anyone acts.</p>
+  <ul id="relay-opportunities" aria-live="polite"></ul>
   <details>
     <summary><strong>Submit a local proposal to a shared relay</strong></summary>
     <p class="muted">Requires a field invitation code. Sending is optional and separate from saving locally. The recipient steward can read your note and coarse location, if supplied. Do not include personal information. No automatic public publishing.</p>
@@ -40,6 +44,32 @@ function drafts() {
   if (!picker.childElementCount) picker.append(new Option("Save a local field trace first", ""));
   return rows;
 }
+async function opportunities() {
+  try {
+    const r = await fetch("/api/opportunities", { cache: "no-store" });
+    if (!r.ok) throw Error("Missing opportunities");
+    const data = await r.json();
+    if (data.schema !== "gro/sibley-opportunities/v0.2") throw Error("Wrong opportunity schema");
+    const ul = el("relay-opportunities");
+    ul.replaceChildren();
+    if (!data.items.length) {
+      const li = document.createElement("li");
+      li.textContent = "No steward-curated follow-on opportunity yet.";
+      ul.append(li);
+    }
+    for (const q of data.items.slice(-30).reverse()) {
+      const li = document.createElement("li");
+      const title = document.createElement("strong");
+      title.textContent = q.title + " · " + q.zone;
+      const description = document.createElement("div");
+      description.textContent = q.description;
+      const state = document.createElement("small");
+      state.textContent = q.state + " · no official authorization or volunteer assignment";
+      li.append(title, description, state);
+      ul.append(li);
+    }
+  } catch { el("relay-opportunities").replaceChildren(); }
+}
 async function board() {
   try {
     const response = await fetch("/api/board", { cache: "no-store" });
@@ -64,6 +94,7 @@ async function board() {
         "Steward-reviewed summary · not independently witnessed work";
       li.append(strong, desc, small); ul.append(li);
     }
+    await opportunities();
     return true;
   } catch {
     el("relay-board").replaceChildren();
