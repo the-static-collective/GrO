@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LOCALITY, sameCode, checkCodes, makeReport, reviewReport,
-  witnessReport, publicBoard, openStore } from "./relay-core.mjs";
+  witnessReport, publicBoard, openStore, makeOpportunity, publicOpportunities } from "./relay-core.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const staticFiles = {
@@ -75,6 +75,9 @@ export function createRelay(config) {
     if (method === "GET" && pathname === "/api/board") {
       return reply(res, 200, publicBoard(store.records));
     }
+    if (method === "GET" && pathname === "/api/opportunities") {
+      return reply(res, 200, publicOpportunities(store.opportunities));
+    }
     if (method === "GET" && pathname === "/api/stream") {
       res.writeHead(200, { "Content-Type": "text/event-stream",
         "Cache-Control": "no-store", "Connection": "keep-alive", "X-Accel-Buffering": "no" });
@@ -109,6 +112,25 @@ export function createRelay(config) {
         store.save(); publishRefresh();
         return reply(res, 200, result);
       }
+      if (pathname === "/api/steward/opportunity") {
+        if (!authorized(req, config.stewardCode)) return reply(res, 403, { error: "Steward code required" });
+        if (store.opportunities.length >= 600) return reply(res, 503, { error: "Pilot opportunity capacity reached" });
+        const data = await readBody(req);
+        const source = store.records.find(r => r.id === data?.source_report_id);
+        const item = makeOpportunity(source, data);
+        store.opportunities.push(item); store.save(); publishRefresh();
+        return reply(res, 201, { id: item.id, state: item.state,
+          official_approval: false, deed: false, monetary_claim: false });
+      }
+      if (pathname === "/api/steward/opportunity-close") {
+        if (!authorized(req, config.stewardCode)) return reply(res, 403, { error: "Steward code required" });
+        const data = await readBody(req);
+        const item = store.opportunities.find(o => o.id === data?.id);
+        if (!item) return reply(res, 400, { error: "Invalid opportunity ID" });
+        item.state = "closed_by_steward"; item.closed_at = new Date().toISOString();
+        store.save(); publishRefresh();
+        return reply(res, 200, { closed: true, full_measure_deed_issued: false });
+      }
       if (pathname === "/api/steward/witness") {
         if (!authorized(req, config.witnessCode)) return reply(res, 403, { error: "Separate witness code required" });
         const data = await readBody(req), record = store.records.find(r => r.id === data?.id);
@@ -120,7 +142,7 @@ export function createRelay(config) {
       return reply(res, 404, { error: "Unknown route" });
     } catch (error) {
       if (error.status === 409 || error.status === 413) return reply(res, error.status, { error: error.message });
-      if (/required|Invalid|Unknown|unavailable|too long|Consent|Authorization|Explanatory|Separate|Independent|Local report/.test(error.message)) {
+      if (/required|Invalid|Unknown|unavailable|too long|Consent|Authorization|Explanatory|Separate|Independent|Local report|opportunity|Reviewed source/.test(error.message)) {
         return reply(res, 400, { error: error.message });
       }
       console.error("[sibley-relay]", error.message);
