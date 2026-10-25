@@ -38,6 +38,7 @@ function makeCard(r) {
   card.append(element("small", r.id + " | " + r.created_at + " | " + r.material));
   card.append(element("p", "Private self-report (NOT proven): " + r.note, "claim"));
   if (r.point) card.append(element("p", "Private coarse point: " + r.point.lat + ", " + r.point.lng, "small"));
+  card.append(element("p", "Public summary consent: " + (r.public_summary_consent ? "YES" : "NO · private review only"), "small"));
   card.append(element("p", "Steward: " + (r.review?.decision || "pending") +
     " | witness: " + (r.witness?.decision || "none"), "small"));
   const summary = element("textarea");
@@ -48,6 +49,7 @@ function makeCard(r) {
   note.placeholder = "Private reasoning or refusal note (optional)";
   formLabel(card, "Private review note", note);
   for (const decision of ["publish", "hold", "refuse"]) {
+    if (decision === "publish" && !r.public_summary_consent) continue;
     const button = element("button", "Review: " + decision, decision === "refuse" ? "warn" : "secondary");
     button.type = "button";
     button.addEventListener("click", async () => {
