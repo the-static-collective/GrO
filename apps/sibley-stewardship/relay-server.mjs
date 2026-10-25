@@ -12,6 +12,7 @@ const staticFiles = {
   "/app.js": ["app.js", "text/javascript"],
   "/relay-client.js": ["relay-client.js", "text/javascript"],
   "/steward.html": ["steward.html", "text/html"],
+  "/steward.js": ["steward.js", "text/javascript"],
   "/locality.json": ["locality.json", "application/json"]
 };
 function reply(res, code, body) {
