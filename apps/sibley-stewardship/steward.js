@@ -61,6 +61,33 @@ function makeCard(r) {
     });
     card.append(button);
   }
+  if (r.review?.decision === "publish") {
+    card.append(element("h3", "Propose a follow-on GrO quest"));
+    const title = document.createElement("input");
+    title.placeholder = "10–90 characters, e.g. Record decorative debris by trail";
+    formLabel(card, "Quest title", title);
+    const desc = element("textarea");
+    desc.placeholder = "Describe observation or proposed future work. Physical cleanup still requires official approval.";
+    formLabel(card, "Quest description", desc);
+    const action = document.createElement("select");
+    for (const [value, name] of [
+      ["observation_only", "Open observation invitation (no physical cleanup)"],
+      ["physical_cleanup", "Proposed cleanup · awaits park/event authorization"]
+    ]) { const option = document.createElement("option"); option.value = value; option.textContent = name; action.append(option); }
+    formLabel(card, "Action type / permission state", action);
+    const propose = element("button", "Publish proposed next quest", "secondary");
+    propose.type = "button";
+    propose.addEventListener("click", async () => {
+      if (!confirm("Publish a clearly unaffiliated GrO opportunity proposal, NOT an official park/event assignment?")) return;
+      try {
+        const answer = await call("/api/steward/opportunity", "POST", el("steward-key").value, {
+          source_report_id: r.id, title: title.value, description: desc.value, action: action.value
+        });
+        status("Opportunity " + answer.id + " · " + answer.state + " · official approval false.");
+      } catch (err) { status(err.message); }
+    });
+    card.append(propose);
+  }
   if (r.kind !== "cleanup_report" || r.review?.decision !== "publish") return;
   card.append(element("h3", "Separate independent human witness"));
   const independent = document.createElement("input"); independent.type = "checkbox";
