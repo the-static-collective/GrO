@@ -69,6 +69,21 @@ test("Sibley report → steward → independent witness → public-safe board, p
     assert.ok(!JSON.stringify(board).includes("THAT MUST NEVER"));
     assert.ok(!JSON.stringify(board).includes("44.161"));
 
+    assert.equal((await req("/api/opportunities")).status, 200);
+    const proposedQuest = { source_report_id: id, title: "Check the riverside litter pattern",
+      description: "Invite voluntary observation along publicly accessible walking routes.",
+      action: "observation_only" };
+    assert.equal((await req("/api/steward/opportunity", "POST", config.inviteCode, proposedQuest)).status, 403);
+    const questResponse = await req("/api/steward/opportunity", "POST", config.stewardCode, proposedQuest);
+    assert.equal(questResponse.status, 201);
+    const quest = await questResponse.json();
+    assert.equal(quest.official_approval, false);
+    const quests = await (await req("/api/opportunities")).json();
+    assert.equal(quests.items.length, 1);
+    assert.equal(quests.items[0].state, "open_observation_proposal");
+    assert.equal(quests.items[0].authorization, "not_issued");
+    assert.ok(!JSON.stringify(quests).includes("THAT MUST NEVER"));
+
     assert.equal((await req("/api/steward/witness", "POST", config.stewardCode,
       { id, decision: "confirm", note: "Observed work myself" })).status, 403);
     assert.equal((await req("/api/steward/witness", "POST", config.witnessCode,
