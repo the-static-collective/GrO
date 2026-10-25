@@ -20,6 +20,7 @@ shell.innerHTML = `
     <button class="secondary" type="button" id="relay-load">Reload local drafts</button>
     <label for="relay-code">Field invitation code (not saved)</label>
     <input type="password" id="relay-code" autocomplete="off" placeholder="Invitation code"/>
+    <label class="check"><input type="checkbox" id="relay-public-consent"> I separately permit the steward to publish a new, non-identifying summary of this report (zone, issue type, summary; no original note or location pin). Without this check, the steward may review privately but cannot publish.</label>
     <button type="button" id="relay-send">Explicitly send for steward review</button>
     <p id="relay-result" role="status" class="muted"></p>
   </details>
@@ -127,11 +128,12 @@ el("relay-send").addEventListener("click", async () => {
   const record = drafts().find(r => r.id === chosenId);
   const code = el("relay-code").value;
   if (!record || !code) { el("relay-result").textContent = "Choose a draft and supply the invitation code."; return; }
-  if (!confirm("Share this local report and optional coarse map point privately with the relay steward for review? It will not be publicly posted automatically.")) return;
+  if (!confirm("Share this local report and optional coarse map point privately with the relay steward for review? The steward cannot publish a summary unless you opted in separately. Your original note and point are never published automatically.")) return;
   const payload = {
     kind: record.kind, zone: record.zone, material: record.material, note: record.note,
     point: record.point, permission_affirmed: record.permission_affirmed,
-    source_local_id: record.id, consent_to_review: true
+    source_local_id: record.id, consent_to_review: true,
+    consent_to_public_summary: el("relay-public-consent").checked
   };
   try {
     const r = await fetch("/api/reports", {
