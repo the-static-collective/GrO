@@ -30,12 +30,13 @@ The state file remains on the server machine and is not a public asset. Do not c
 ## Source-to-public round trip
 
 1. A participant creates a device-local report on the map. Its original local record stays on that device.
-2. **Explicit SEND** requires a field invitation code and explicit disclosure confirmation. The server checks consent and moves the submission into private steward HOLD.
+2. **Explicit SEND** requires a field invitation code, disclosure confirmation, and a separate opt-in if any curated public-safe summary is permitted. The server checks consent and moves the submission into private steward HOLD.
 3. A steward with a separate code reads private records, checks facts outside the software, and may HOLD, REFUSE, or PUBLISH a separately written **public-safe summary**. No raw notes or original coordinate data are copied into the public board.
 4. SSE announces publication/review changes to connected browsers. The public board refreshes without a page reload; no worker location or private report is streamed.
 5. From a published record the steward can create a **new GrO quest possibility**. Observation-only proposals have a public unapproved label. Cleanup quests always display **awaiting official authorization**; the relay does not assign a team or direct physical work.
 6. For a steward-published cleanup claim, a **separately coded human witness** can record CONFIRM, DISPUTE or HOLD, affirming independent knowledge and work authorization for CONFIRM. That creates only a **source-labelled Deed candidate**. It is not a source-owned Full Measure Deed; signatures/verified identities and event-organizer admission are still missing.
-7. If funds are ultimately allocated to a duly eligible organization, **cash receipt and any authorized transfer to a Penny reserve remain outside this software** and follow the separate Treasury proposal. There is no automated hours-to-money ratio.
+7. A steward-authenticated `GET /api/steward/deed-candidates` endpoint returns a minimal, **non-authoritative** `gro/full-measure-candidates/v0.1` envelope only for separately affirmed cleanup reports that were published with contributor consent. It carries no original field note or location pin, no person identity proof and no automatic Full Measure admission; a receiving authority must HOLD pending separate review.
+8. If funds are ultimately allocated to a duly eligible organization, **cash receipt and any authorized transfer to a Penny reserve remain outside this software** and follow the separate Treasury proposal. There is no automated hours-to-money ratio.
 
 ## Real-time guarantee — and its limits
 
