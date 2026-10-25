@@ -13,7 +13,9 @@ const staticFiles = {
   "/relay-client.js": ["relay-client.js", "text/javascript"],
   "/steward.html": ["steward.html", "text/html"],
   "/steward.js": ["steward.js", "text/javascript"],
-  "/locality.json": ["locality.json", "application/json"]
+  "/locality.json": ["locality.json", "application/json"],
+  "/README.md": ["README.md", "text/plain"],
+  "/RUNBOOK-002.md": ["RUNBOOK-002.md", "text/plain"]
 };
 function reply(res, code, body) {
   res.writeHead(code, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
@@ -63,7 +65,7 @@ export function createRelay(config) {
       try {
         res.writeHead(200, { "Content-Type": type + "; charset=utf-8",
           "Cache-Control": "no-store",
-          "Content-Security-Policy": "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self'" });
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self'" });
         res.end(readFileSync(join(here, name)));
       } catch { reply(res, 404, { error: "Missing static asset" }); }
       return;
