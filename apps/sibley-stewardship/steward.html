@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sibley GrO · steward review</title>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#16372b;background:#f2f6f0}*{box-sizing:border-box}
+body{margin:0}header{padding:1.2rem max(1rem,calc((100vw - 900px)/2));background:#193d30;color:white}
+main{max-width:900px;padding:1rem;margin:auto}section,article{background:white;padding:1rem;border:1px solid #cddcd0;border-radius:12px;margin-bottom:1rem}
+label{display:block;margin:.6rem 0 .25rem;font-weight:600}input,textarea{width:100%;padding:.6rem;border:1px solid #acc6b1;border-radius:7px;font:inherit}
+textarea{min-height:85px}button{padding:.6rem .8rem;margin:.4rem .3rem .2rem 0;cursor:pointer;background:#1b6d4b;border:0;color:#fff;border-radius:7px}
+button.secondary{background:#647c6a}button.warn{background:#963f37}.check{display:flex;align-items:start;gap:.5rem}.check input{width:auto;margin:.35rem 0}
+.small,small{color:#455a4f}h1{margin:.2rem 0}h2{margin:.2rem 0}.claim{white-space:pre-wrap;border-left:4px solid #d2a066;padding:.5rem}
+</style></head><body>
+<header><h1>Steward &amp; witness desk</h1><p>Separate human-gated pilot review; not official city/event authority or verified person identity.</p></header>
+<main>
+<section><p><a href="./">← Return to park-wide map</a></p>
+<p><strong>Private reports are visible only to someone holding the steward code.</strong> Never paste codes into URLs, publish them, or share this desk over unencrypted HTTP beyond your own device. A code grants access; it does not prove that the holder is an authorized environmental steward.</p>
+<label for="steward-key">Steward review code</label><input id="steward-key" type="password" autocomplete="off" placeholder="Entered for this session only">
+<label for="witness-key">Independent witness code</label><input id="witness-key" type="password" autocomplete="off" placeholder="Separate from steward code">
+<button type="button" id="load">Load private review queue</button>
+<p class="small" id="status" role="status"></p>
+</section>
+<div id="queue" aria-live="polite"></div>
+<section><p>Reviewing a report may publish a separate public-safe summary. Witnessing a completed cleanup requires independent real-world observation and authorization; a second passcode is a technical gate, not proof that two different people participated. A confirmed pilot witness claim is only a <strong>Full Measure Deed candidate</strong>, not a Deed or payment.</p></section>
+</main>
+<script type="module" src="./steward.js"></script>
+</body></html>
