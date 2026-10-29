@@ -108,6 +108,14 @@ NEW AFFORDANCE
 
 > Two locally admitted, simultaneously eligible fork branches may become explicit parents of a fresh descendant W without canonicalizing, erasing, or inheriting authority from either parent.
 
+## MATTERCRAFT-001 — Physical objects become local encounters (draft)
+
+A `42 WOOD` claim can now be presented as a **GrO-native, actor-local encounter**, with a separate candidate witness count (e.g. 39), explicit disagreement, a held Full Measure quest invitation, a separately unfunded banana thank-you, and an inert wood-to-ash transformation preview.
+
+Run `node examples/mattercraft-001.js` or inspect [the Mattercraft witness-economy contract](docs/MATTERCRAFT-001-WITNESS-ECONOMY.md).
+
+**Still HOLD:** no actual material inventory, photographed wood, signers verified as independent people, authorized inspections, PENNY changes, Full Measure Deeds, reward delivery, fire, public traces, or network messages. This is a read-only GrO encounter, not a real-world asset token or economic settlement.
+
 ## Phone field encounters — GrO FORAGE-001
 
 The first phone-oriented GrO interface is the
