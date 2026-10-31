@@ -22,7 +22,7 @@
 <button class="action wide" type="submit">MAKE MY OFFER CARD →</button><p class="hint">Nothing is sent. After creating, copy a card to share privately. Nobody owes anything merely because a card exists.</p></form><div id="status" role="status" aria-live="polite"></div></div></section>
 <section class="panel"><div class="head"><h2>02 / CARDS ON THIS DEVICE</h2><span class="count" id="count">0 cards</span></div><div class="inside"><div class="toolbar"><button class="quiet tiny" id="example" type="button">Try synthetic example</button><button class="quiet tiny" id="backup" type="button">Export backup</button><label class="quiet tiny" style="margin:0;cursor:pointer">Import backup<input type="file" id="import" accept="application/json,.json" class="hidden"></label></div><div id="cards" class="cards" aria-live="polite"></div></div><div class="sectionnote">A name typed into this browser is <strong>not identity verification</strong>. Every event is a locally entered claim, not a verified signature or proof of a payment. Export packets can be shown to another person, but do not synchronize devices.</div></section>
 </main>
-<div class="foot"><strong>WHAT THIS IS:</strong> A working local-first field notebook for small service-for-advance agreements. An offer does not become an obligation until the named parties actually agree; a claimed advance does not prove payment; a report does not prove fulfillment. Holder changes require the existing holder, the maker, and the incoming holder to assent. No money is moved by this site, and no loan, enforceable debt, title, or negotiable instrument is created by its software. Local laws and your actual agreements still matter. Avoid putting private addresses or other sensitive details in shared cards.<br><br><strong>THE TEST:</strong> Can a real neighbor get useful help without a conventional marketplace? Count only what humans actually confirm.</div>
+<div class="foot"><strong>WHAT THIS IS:</strong> A working local-first field notebook for small service-for-advance agreements. An offer does not become an obligation until the named parties actually agree; a claimed advance does not prove payment; a report does not prove fulfillment. Holder changes require the existing holder, the maker, and the incoming holder to assent. An optional reLATTE export carries only an unsigned, opaque claim-level reference, not your card's private terms; it requires an independent receiving world to review it. No money is moved by this site, and no loan, enforceable debt, title, or negotiable instrument is created by its software. Local laws and your actual agreements still matter. Avoid putting private addresses or other sensitive details in shared cards.<br><br><strong>THE TEST:</strong> Can a real neighbor get useful help without a conventional marketplace? Count only what humans actually confirm.</div>
 </div>
 <script>
 (function(){"use strict";
@@ -57,6 +57,31 @@
  el("due").value=stamp();el("due").min=stamp();
  function download(name,content){const blob=new Blob([content],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
  function packet(c){return JSON.stringify(c,null,2)}
+ /** Browser-native canonical JSON for plain source cards; receiver independently rehashes the packet. UNSIGNED. */
+ function jcs(v){if(v===null||typeof v!=="object"){if(typeof v==="number"&&!Number.isFinite(v))throw Error("Nonfinite value");const result=JSON.stringify(v);if(result===undefined)throw Error("Undefined JSON value");return result;}if(Array.isArray(v))return "["+v.map(jcs).join(",")+"]";if(Object.getPrototypeOf(v)!==Object.prototype)throw Error("Unsupported object");return "{"+Object.keys(v).sort().map(k=>jcs(k)+":"+jcs(v[k])).join(",")+"}"}
+ async function digest(domain,payload){if(!globalThis.crypto?.subtle)throw Error("Secure context with WebCrypto required for hashing.");const b=new TextEncoder().encode(domain+jcs(payload));const hash=await crypto.subtle.digest("SHA-256",b);return [...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,"0")).join("")}
+ async function exportRelatte(c){
+   replay(c);
+   const latest=c.events[c.events.length-1];
+   const signal={
+     schema:"relatte.possibility-signal/v0",
+     source_system:"gro.useful-later",
+     source_world:"world:gro-device-local",
+     source_particular:"particular:local-maker-unverified",
+     source_event_id:"event:"+await digest("reLATTE-GrOEvent-v0|",{card_id:c.id,events:c.events}),
+     relation_ref:"relation:"+await digest("reLATTE-GrORelation-v0|",c.id),
+     kind:"service",
+     action:latest.type.toLowerCase().replaceAll("_","."),
+     content_ref:"sha256:"+await digest("reLATTE-PossibilityContent-v0|",c),
+     occurred_at:latest.at,
+     claim_level:"source_claim",
+     scope:"review_only",
+   };
+   download(c.id+"-relatte-UNSIGNED-signal.json",JSON.stringify(signal,null,2));
+   info("Saved UNSIGNED reLATTE signal. No agreement, payment, broadcast or receiver acceptance occurred.");
+   return signal;
+ }
+ window.UsefulLaterCore.exportRelatte=exportRelatte;
  function summary(c,s){return `USEFUL LATER / ${c.id}\n${s.maker} offers: ${s.work}\n${s.minutes} minutes by ${s.due}\nAdvance requested: $${s.advance.toFixed(2)}\nConditions: ${s.boundaries||"None stated"}\nCurrent LOCAL claim: ${label(s)}\nHolder: ${s.holder||"none"}\nThis is a self-attested local record; not verified payment, identity, or transferable money.`}
  async function copyText(s){try{await navigator.clipboard.writeText(s);info("Copied. Paste it into a message to a real person.")}catch{let ta=document.createElement("textarea");ta.value=s;ta.className="receipt";el("status").replaceChildren(document.createTextNode("Select and copy the text below:"),ta);ta.focus();ta.select()}}
  function label(s){if(s.held)return "HOLD / "+s.phase;if(s.transfer)return s.transfer.approved?"TRANSFER / awaiting new holder":"TRANSFER / awaiting maker";return {open:"OFFER OPEN",awaiting_receipt:"ADVANCE OFFERED · NOT RECEIVED",active:"WORK PROMISED",reported:"WORK REPORTED · NOT CONFIRMED",completed:"CONFIRMED COMPLETE",released:"RELEASED"}[s.phase]||s.phase}
@@ -78,7 +103,7 @@
  }if(event.actor===null||event.to===null)return;cards[idx]=append(c,event);save();render();info(type.replaceAll("_"," ")+" recorded as local testimony.");}catch(e){info("Not recorded: "+e.message)}}
  function render(){el("count").textContent=cards.length+" card"+(cards.length===1?"":"s");const box=el("cards");box.replaceChildren();if(!cards.length){box.innerHTML='<div class="empty">NO CARDS YET.<br>Make one tiny promise. Share it privately. See whether a real person responds.<br><br>One successful exchange beats a thousand imaginary tokens.</div>';return}for(const c of [...cards].reverse()){let s;try{s=replay(c)}catch{continue}const div=document.createElement("article");div.className="card";div.innerHTML=`<div class="cardhead"><span class="id">${safe(c.id)}</span><span class="tag">${safe(label(s))}</span></div><h3>${safe(s.work)}</h3><div class="amount">$${s.advance.toFixed(2)} <span class="meta">ADVANCE REQUESTED</span></div><p><strong>${safe(s.maker)}</strong> · ${s.minutes} min · by ${safe(s.due)}<br>${safe(s.boundaries||"No extra conditions stated")}</p><div class="meta">${s.holder?`Current holder: ${safe(s.holder)}<br>`:""}${s.proposedHolder?`Advance proposed by: ${safe(s.proposedHolder)}<br>`:""}${s.transfer?`Transfer requested to: ${safe(s.transfer.to)}<br>`:""}${s.held?`HOLD note: ${safe(s.holdNote)}<br>`:""}</div><div class="split" data-actions></div><details class="carddetails"><summary class="meta">Event history (${c.events.length}) / self-attested</summary><ol class="timeline">${c.events.map(e=>`<li>${safe(e.type.replaceAll("_"," "))} · ${safe(e.actor)} · ${safe(e.at.slice(0,16).replace("T"," "))} UTC</li>`).join("")}</ol></details>`;
  const area=div.querySelector("[data-actions]");function btn(title,fn,variant="quiet"){const b=document.createElement("button");b.type="button";b.className=variant+" tiny";b.textContent=title;b.addEventListener("click",fn);area.append(b)}
- btn("Copy invitation",()=>copyText(summary(c,s)));btn("Save card JSON",()=>download(c.id+".json",packet(c)));
+ btn("Copy invitation",()=>copyText(summary(c,s)));btn("Save card JSON",()=>download(c.id+".json",packet(c)));btn("Export reLATTE signal",()=>exportRelatte(c).catch(e=>info("No signal exported: "+e.message)));
  if(s.phase==="open"&&!s.held)btn("Supporter offers advance",()=>act(c.id,"ADVANCE_OFFERED"),"alt");
  if(s.phase==="awaiting_receipt"&&!s.held){btn("Maker confirms receipt",()=>act(c.id,"ADVANCE_RECEIVED"),"alt");btn("Withdraw unreceived advance",()=>act(c.id,"ADVANCE_WITHDRAWN"));}
  if(s.phase==="active"&&!s.held&&!s.transfer){btn("Maker reports work",()=>act(c.id,"WORK_REPORTED"),"alt");btn("Request holder change",()=>act(c.id,"TRANSFER_REQUESTED"))}
