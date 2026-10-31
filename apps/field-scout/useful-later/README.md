@@ -43,3 +43,12 @@ One maker; one willing supporter; one small skill; one externally acknowledged e
 Architectural neighbors (not implemented integrations): BananaSpork's Help Slip/HOLD and separately confirmed participation; Jubilee Campfire's offer/accept/report/confirm; reLATTE's crossing custody; Full Measure's non-score capacity projection. A local UI event has **not** been admitted as a shared ledger fact.
 
 **ONE CLAIM ≠ TWO PEOPLE'S AGREEMENT. REPORT ≠ CONFIRMATION. HOLDER CHANGE ≠ TRADED CURRENCY.**
+
+## reLATTE open export
+
+Each locally stored card now offers **Export reLATTE signal**. This writes an UNSIGNED `relatte.possibility-signal/v0` JSON reference from the **latest local event** using domain-separated SHA-256, with no private names, work description, dates of service, or amount inside the signal. The complete original card stays with its maker. Exporting does **not** broadcast or sign anything.
+
+The receiver-side adapter lives in `the-static-collective/reLATTE/src/possibility.ts`, where a separate source signing key creates a signed crossing and an independent owner-local `LocalReceiver` can HOLD, REFUSE or admit *only an observation for review*. The source packet can be supplied out of band and independently rehashed with `matchesGrOUsefulLater`. No real-world agreement or actual completion is proven.
+
+The possibility schema is deliberately **not** specialized to `service` or to US dollars: other voluntary invitation, care, teaching, material-sharing, and time contributions can publish their own opaque source events with namespaced kinds and actions. The GrO UI is only one example donor.
+
