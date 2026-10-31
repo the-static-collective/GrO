@@ -125,7 +125,12 @@ $("encounter-form").addEventListener("submit", async event => {
     const lead = buildLead(fields(), encounterRef);
     const bytes = new Uint8Array(await chosenImage.arrayBuffer());
     const evidence = await photoEvidence(bytes, lead.lead_ref);
-    const held = await createHeldForageEncounter({\n      lead, evidence, originalBytes: bytes,\n      actorId: "actor:local-phone-operator", placeId: lead.site_ref,\n      worldId: "world:gro-local-phone",\n    });\n    prepared = {lead, evidence, held};
+    const held = await createHeldForageEncounter({
+      lead, evidence, originalBytes: bytes,
+      actorId: "actor:local-phone-operator", placeId: lead.site_ref,
+      worldId: "world:gro-local-phone",
+    });
+    prepared = {lead, evidence, held};
     $("hash").textContent = "Original-file SHA-256: " + evidence.original_bytes_sha256;
     $("blockers").textContent = "HOLD: " + cautionCodes(lead).join(" · ");
     $("message").textContent = "Prepared local evidence. No permission or pickup was granted.";
@@ -137,7 +142,10 @@ $("encounter-form").addEventListener("submit", async event => {
 $("save-lead").addEventListener("click", () => {
   if (prepared) download("forage-lead-" + encounterRef + ".json", prepared.lead);
 });
-$("save-gro").addEventListener("click", () => {\n  if (prepared) download("gro-forage-hold-" + encounterRef + ".json", prepared.held);\n});\n$("save-photo").addEventListener("click", () => {
+$("save-gro").addEventListener("click", () => {
+  if (prepared) download("gro-forage-hold-" + encounterRef + ".json", prepared.held);
+});
+$("save-photo").addEventListener("click", () => {
   if (prepared) download("forage-photo-evidence-" + encounterRef + ".json",
                          prepared.evidence);
 });
