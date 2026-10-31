@@ -58,7 +58,7 @@
  function download(name,content){const blob=new Blob([content],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
  function packet(c){return JSON.stringify(c,null,2)}
  /** Browser-native canonical JSON for plain source cards; receiver independently rehashes the packet. UNSIGNED. */
- function jcs(v){if(v===null||typeof v!=="object"){if(typeof v==="number"&&!Number.isFinite(v))throw Error("Nonfinite value");const result=JSON.stringify(v);if(result===undefined)throw Error("Undefined JSON value");return result;}if(Array.isArray(v))return "["+v.map(jcs).join(",")+"]";if(Object.getPrototypeOf(v)!==Object.prototype)throw Error("Unsupported object");return "{"+Object.keys(v).sort().map(k=>jcs(k)+":"+jcs(v[k])).join(",")+"}"}
+ function jcs(v){if(v===null||typeof v!=="object"){if(typeof v==="number"&&!Number.isFinite(v))throw Error("Nonfinite value");const result=JSON.stringify(v);if(result===undefined)throw Error("Undefined JSON value");return result;}if(Array.isArray(v))return "["+v.map(jcs).join(",")+"]";if(Object.getPrototypeOf(v)!==null&&Object.getPrototypeOf(Object.getPrototypeOf(v))!==null)throw Error("Unsupported object");return "{"+Object.keys(v).sort().map(k=>jcs(k)+":"+jcs(v[k])).join(",")+"}"}
  async function digest(domain,payload){if(!globalThis.crypto?.subtle)throw Error("Secure context with WebCrypto required for hashing.");const b=new TextEncoder().encode(domain+jcs(payload));const hash=await crypto.subtle.digest("SHA-256",b);return [...new Uint8Array(hash)].map(n=>n.toString(16).padStart(2,"0")).join("")}
  async function exportRelatte(c){
    replay(c);
