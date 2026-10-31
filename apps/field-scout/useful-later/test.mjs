@@ -66,3 +66,31 @@ test('event log cannot be mutated into a completed state by a field overwrite',(
  const c=funded();c.phase='completed';c.holder='Ghost';
  assert.equal(replay(c).phase,'active');assert.equal(replay(c).holder,'Sarah');
 });
+test('reLATTE browser export hashes exact JSON without leaking private terms or claiming a signature',async()=>{
+ const {webcrypto,createHash}=await import('node:crypto');
+ const {TextEncoder}=await import('node:util');
+ const start=html.indexOf('/** Browser-native canonical JSON');
+ const end=html.indexOf(' function summary(c,s){',start);
+ assert.ok(start>0 && end>start,'export adapter is present');
+ const exported=[];
+ const w={UsefulLaterCore:{}};
+ const sandboxExport={window:w,globalThis:{crypto:webcrypto},crypto:webcrypto,TextEncoder,replay,
+   download:(name,content)=>exported.push({name,content}),info:()=>{},JSON,Object,Uint8Array,Array,String,Error};
+ vm.runInNewContext(html.slice(start,end),sandboxExport,{filename:'useful-later-relatte-export.js'});
+ const c=fresh();
+ const signal=await w.UsefulLaterCore.exportRelatte(c);
+ const sorted=v=>v&&typeof v==='object'?(Array.isArray(v)?'['+v.map(sorted).join(',')+']':'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+sorted(v[k])).join(',')+'}'):JSON.stringify(v);
+ const sha=(domain,v)=>createHash('sha256').update(domain+sorted(v)).digest('hex');
+ assert.equal(signal.content_ref,'sha256:'+sha('reLATTE-PossibilityContent-v0|',c));
+ assert.equal(signal.source_event_id,'event:'+sha('reLATTE-GrOEvent-v0|',{card_id:c.id,events:c.events}));
+ assert.equal(signal.relation_ref,'relation:'+sha('reLATTE-GrORelation-v0|',c.id));
+ assert.equal(signal.schema,'relatte.possibility-signal/v0');
+ assert.equal(signal.claim_level,'source_claim');
+ assert.equal(signal.scope,'review_only');
+ assert.equal(signal.action,'created');
+ assert.equal(exported.length,1);
+ assert.ok(exported[0].name.includes('UNSIGNED'));
+ for(const privateTerm of [base.maker,base.work,base.boundaries,'\"advance\":5']) {
+   assert.ok(!JSON.stringify(signal).includes(privateTerm),'private terms must stay at source: '+privateTerm);
+ }
+});
