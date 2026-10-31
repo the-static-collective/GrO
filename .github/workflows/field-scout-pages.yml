@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: "22"
       - run: node --test test/forage-001.test.js
+      - run: node --test apps/field-scout/useful-later/test.mjs
       - name: Verify HTML/JS are syntactically sound
         run: |
           node --check apps/field-scout/app.mjs
